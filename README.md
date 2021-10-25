@@ -1,6 +1,8 @@
 # SIG-Library
 Projeto "Sistema de Controle de Biblioteca"  para a Disciplina DCT1106 - Programação Semestre 2021.2 \
-Discentes: Sueliton dos Santos Medeiros e Daivid Fernando Soares dos Santos
+Discentes: \
+Sueliton dos Santos Medeiros (20210065543) \
+Daivid Fernando Soares dos Santos (20210053346)
 #
 
 Universidade Federal do Rio Grande do Norte \
