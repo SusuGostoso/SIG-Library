@@ -12,19 +12,49 @@
 #include <stdlib.h>
 
 // Assinatura das funções
-void telaSobre(void);
+void Tela_Sobre(void);
+void Tela_Principal(void);
 
 // Programa principal
 int main(void)
 {
-    
-    telaSobre();
+    Tela_Principal();
+
+    int mod;
+    printf("Insira o numero do modulo que deseja escolher: ");
+    scanf("%d", &mod);
+
+    switch (mod)
+    {
+        case 1:
+        printf("Voce escolheu o modulo de usuario.\n");
+        break;
+
+        case 2:
+        printf("Voce escolheu o modulo de staffs.\n");
+        break;
+
+        case 3:
+        printf("Voce escolheu o modulo de livros.\n");
+        break;
+
+        case 4:
+        printf("Voce escolheu o modulo de sobre.\n");
+        break;
+
+        default :
+        printf ("Valor invalido!\n");
+    }
+
+    printf("\n");
+    getchar();
+
     system("pause");
     return 0;
 }
 
 // Função para exibir informações do projeto
-void telaSobre(void)
+void Tela_Sobre(void)
 {
     printf("\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
@@ -52,3 +82,31 @@ void telaSobre(void)
     printf("\n");
 }
 
+void Tela_Principal(void) {
+    system("clear||cls");
+    printf("\n");
+    printf("///////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                         ///\n");
+    printf("///             Universidade Federal do Rio Grande do Norte                 ///\n");
+    printf("///                 Centro de Ensino Superior do Seridó                     ///\n");
+    printf("///               Departamento de Computação e Tecnologia                   ///\n");
+    printf("///                  Disciplina DCT1106 -- Programação                      ///\n");
+    printf("///                  Projeto de Controle de Biblioteca                      ///\n");
+    printf("///               Developed by  @SusuGostoso - Out, 2021                    ///\n");
+    printf("///             Developed by  @daividfernandoo - Out, 2021                  ///\n");
+    printf("///                                                                         ///\n");
+    printf("///////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                         ///\n");
+    printf("///        = = = = = Projeto de Controle de Biblioteca = = = = =            ///\n");
+    printf("///                             SIG-Library                                 ///\n");
+    printf("///                                                                         ///\n");
+    printf("///            1. Modulo Usuario                                            ///\n");
+    printf("///            2. Modulo Staff                                              ///\n");
+    printf("///            3. Modulo Livros                                             ///\n");
+    printf("///            4. Modulo Sobre                                              ///\n");
+    printf("///            0. Sair                                                      ///\n");
+    printf("///                                                                         ///\n");
+    printf("///////////////////////////////////////////////////////////////////////////////\n");
+    printf("\n");
+    //getchar();
+}
