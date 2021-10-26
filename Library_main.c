@@ -14,6 +14,7 @@
 // Assinatura das funções
 void Tela_Sobre(void);
 void Tela_Principal(void);
+void Tela_Menu_Usuario(void);
 
 // Programa principal
 int main(void)
@@ -27,7 +28,7 @@ int main(void)
     switch (mod)
     {
         case 1:
-        printf("Voce escolheu o modulo de usuario.\n");
+        Tela_Menu_Usuario();
         break;
 
         case 2:
@@ -44,6 +45,7 @@ int main(void)
 
         default :
         printf ("Valor invalido!\n");
+        Tela_Principal();
     }
 
     printf("\n");
@@ -109,4 +111,38 @@ void Tela_Principal(void) {
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
     //getchar();
+}
+
+void Tela_Menu_Usuario(void) {
+    system("clear||cls");
+    printf("\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                       ///\n");
+    printf("///          ===================================================          ///\n");
+    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
+    printf("///          = = = =  Projeto de Controle de Biblioteca  = = = =          ///\n");
+    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
+    printf("///          ===================================================          ///\n");
+    printf("///               Developed by  @SusuGostoso - Out, 2021                    ///\n");
+    printf("///             Developed by  @daividfernandoo - Out, 2021                  ///\n");
+    printf("///                                                                       ///\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                       ///\n");
+    printf("///           = = = = = = = = = = = = = = = = = = = = = = = =             ///\n");
+    printf("///           = = = = = = = =  Menu Usuario = = = = = = = = =             ///\n");
+    printf("///           = = = = = = = = = = = = = = = = = = = = = = = =             ///\n");
+    printf("///                                                                       ///\n");
+    printf("///           1. Cadastrar um novo usuario                                ///\n");
+    printf("///           2. Pesquisar os dados de um usuario                         ///\n");
+    printf("///           3. Atualizar o cadastro de um usuario                       ///\n");
+    printf("///           4. Excluir um usuario do sistema                            ///\n");
+    printf("///           0. Voltar ao menu anterior                                  ///\n");
+    printf("///                                                                       ///\n");
+    printf("///           Escolha a opção desejada:                                   ///\n");
+    printf("///                                                                       ///\n");
+    printf("///                                                                       ///\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
+    printf("\n");
+    printf("\t\t\t>>> Tecle <ENTER> para continuar...\n");
+    getchar();
 }
