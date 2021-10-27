@@ -174,7 +174,7 @@ void Tela_Creditos(void) {
     printf("///                                                                         ///\n");
     printf("///                                                                         ///\n");
     printf("///            Daivid Fernando Soares dos Santos                            ///\n");
-    printf("///            Matrícula: 20210065543                                       ///\n");
+    printf("///            Matrícula: 20210053346                                       ///\n");
     printf("///            E-mail: daivid.santos.127@ufrn.edu.br                        ///\n");
     printf("///            Redes sociais: @daivid_fernando                              ///\n");
     printf("///                                                                         ///\n");
