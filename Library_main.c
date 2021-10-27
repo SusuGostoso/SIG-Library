@@ -11,19 +11,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Assinatura das funções
+//=========> Assinatura das funções
+
+//Telas
 void Tela_Sobre(void);
 void Tela_Principal(void);
 void Tela_Menu_Usuario(void);
+void Tela_Creditos(void);
 
 // Programa principal
 int main(void)
 {
-    Tela_Principal();
-
-    int mod;
-    printf("Insira o numero do modulo que deseja escolher: ");
-    scanf("%d", &mod);
+    Tela_Principal(); //Exibição da Tela Principal
+ 
+    int mod; //Variável para capturar escolha do teclado
+    printf("Insira o numero do modulo que deseja escolher: "); //Mensagem
+    scanf("%d", &mod); //Captura do que o usuario digitou
 
     switch (mod)
     {
@@ -43,13 +46,14 @@ int main(void)
         printf("Voce escolheu o modulo de sobre.\n");
         break;
 
+        case 5:
+        Tela_Creditos();
+        break;
+
         default :
         printf ("Valor invalido!\n");
         Tela_Principal();
     }
-
-    printf("\n");
-    getchar();
 
     system("pause");
     return 0;
@@ -106,11 +110,11 @@ void Tela_Principal(void) {
     printf("///            2. Modulo Staff                                              ///\n");
     printf("///            3. Modulo Livros                                             ///\n");
     printf("///            4. Modulo Sobre                                              ///\n");
+    printf("///            5. Modulo Creditos                                           ///\n");
     printf("///            0. Sair                                                      ///\n");
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
-    //getchar();
 }
 
 void Tela_Menu_Usuario(void) {
@@ -129,7 +133,7 @@ void Tela_Menu_Usuario(void) {
     printf("/////////////////////////////////////////////////////////////////////////////\n");
     printf("///                                                                       ///\n");
     printf("///           = = = = = = = = = = = = = = = = = = = = = = = =             ///\n");
-    printf("///           = = = = = = = =  Menu Usuario = = = = = = = = =             ///\n");
+    printf("///           = = = = = = = =  Menu  Usuario  = = = = = = = =             ///\n");
     printf("///           = = = = = = = = = = = = = = = = = = = = = = = =             ///\n");
     printf("///                                                                       ///\n");
     printf("///           1. Cadastrar um novo usuario                                ///\n");
@@ -138,11 +142,45 @@ void Tela_Menu_Usuario(void) {
     printf("///           4. Excluir um usuario do sistema                            ///\n");
     printf("///           0. Voltar ao menu anterior                                  ///\n");
     printf("///                                                                       ///\n");
-    printf("///           Escolha a opção desejada:                                   ///\n");
-    printf("///                                                                       ///\n");
     printf("///                                                                       ///\n");
     printf("/////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
     printf("\t\t\t>>> Tecle <ENTER> para continuar...\n");
-    getchar();
+}
+
+void Tela_Creditos(void) {
+    system("clear||cls");
+    printf("\n");
+    printf("///////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                         ///\n");
+    printf("///             Universidade Federal do Rio Grande do Norte                 ///\n");
+    printf("///                 Centro de Ensino Superior do Seridó                     ///\n");
+    printf("///               Departamento de Computação e Tecnologia                   ///\n");
+    printf("///                  Disciplina DCT1106 -- Programação                      ///\n");
+    printf("///                  Projeto de Controle de Biblioteca                      ///\n");
+    printf("///               Developed by  @SusuGostoso - Out, 2021                    ///\n");
+    printf("///             Developed by  @daividfernandoo - Out, 2021                  ///\n");
+    printf("///                                                                         ///\n");
+    printf("///////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                         ///\n");
+    printf("///           = = = =  Projeto de Controle de Biblioteca  = = = =          ///\n");
+    printf("///                                                                         ///\n");
+    printf("///            Este projeto está sendo desenvolvido por:                    ///\n");
+    printf("///                                                                         ///\n");
+    printf("///            Sueliton dos Santos Medeiros                                 ///\n");
+    printf("///            Matrícula: 20210065543                                       ///\n");
+    printf("///            E-mail: sueliton.medeiros.098@ufrn.edu.br                    ///\n");
+    printf("///            Redes sociais: @suelitonx                                    ///\n");
+    printf("///                                                                         ///\n");
+    printf("///                                                                         ///\n");
+    printf("///            Daivid Fernando Soares dos Santos                            ///\n");
+    printf("///            Matrícula: 20210065543                                       ///\n");
+    printf("///            E-mail: daivid.santos.127@ufrn.edu.br                        ///\n");
+    printf("///            Redes sociais: @daivid_fernando                              ///\n");
+    printf("///                                                                         ///\n");
+    printf("///            Repositório: https://github.com/SusuGostoso/SIG-Library      ///\n");
+    printf("///                                                                         ///\n");
+    printf("///////////////////////////////////////////////////////////////////////////////\n");
+    printf("\n");
+    printf("\t\t\t>>> Tecle <ENTER> para continuar...\n");
 }
