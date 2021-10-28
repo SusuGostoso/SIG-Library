@@ -51,7 +51,7 @@ int main(void)
         break;
 
         default :
-        printf ("Valor invalido!\n");
+        printf ("Valor invalido, tente novamente!\n");
         Tela_Principal();
     }
 
@@ -83,6 +83,10 @@ void Tela_Sobre(void)
     printf("///   O presente projeto propõe um sistema capaz de gerir o cadastro dos    ///\n");
     printf("///   livros e usuários da biblioteca, permitindo o controle e verificação  ///\n");
     printf("///   dos empréstimos e dos prazos de devolução.                            ///\n");
+    printf("///                                                                         ///\n");
+    printf("///   Observação: Na tela a seguir, você terá que escolher um número de     ///\n");
+    printf("///               1 a 5, onde será guiado para um passo a passo para        ///\n");
+    printf("///               conseguir se cadastrar.                                   ///\n");
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
