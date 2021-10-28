@@ -18,6 +18,7 @@ void Tela_Sobre(void);
 void Tela_Principal(void);
 void Tela_Menu_Usuario(void);
 void Tela_Creditos(void);
+void Tela_Menu_Livro(void);
 
 // Programa principal
 int main(void)
@@ -83,10 +84,6 @@ void Tela_Sobre(void)
     printf("///   O presente projeto propõe um sistema capaz de gerir o cadastro dos    ///\n");
     printf("///   livros e usuários da biblioteca, permitindo o controle e verificação  ///\n");
     printf("///   dos empréstimos e dos prazos de devolução.                            ///\n");
-    printf("///                                                                         ///\n");
-    printf("///   Observação: Na tela a seguir, você terá que escolher um número de     ///\n");
-    printf("///               1 a 5, onde será guiado para um passo a passo para        ///\n");
-    printf("///               conseguir se cadastrar.                                   ///\n");
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
@@ -185,6 +182,37 @@ void Tela_Creditos(void) {
     printf("///            Repositório: https://github.com/SusuGostoso/SIG-Library      ///\n");
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
+    printf("\n");
+    printf("\t\t\t>>> Tecle <ENTER> para continuar...\n");
+}
+
+void Tela_Menu_Livro(void) {
+    system("clear||cls");
+    printf("\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                       ///\n");
+    printf("///          ===================================================          ///\n");
+    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
+    printf("///          = = = =  Projeto de Controle de Biblioteca  = = = =          ///\n");
+    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
+    printf("///          ===================================================          ///\n");
+    printf("///               Developed by  @SusuGostoso - Out, 2021                  ///\n");
+    printf("///             Developed by  @daividfernandoo - Out, 2021                ///\n");
+    printf("///                                                                       ///\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                       ///\n");
+    printf("///           = = = = = = = = = = = = = = = = = = = = = = = =             ///\n");
+    printf("///           = = = = = = = =   Menu Livros   = = = = = = = =             ///\n");
+    printf("///           = = = = = = = = = = = = = = = = = = = = = = = =             ///\n");
+    printf("///                                                                       ///\n");
+    printf("///           1. Alugar Livro                                             ///\n");
+    printf("///           2. Pesquisar Livro                                          ///\n");
+    printf("///           3. Cadastrar Livro                                          ///\n");
+    printf("///           4. Excluir Livro                                            ///\n");
+    printf("///           5. Alterar Livro                                            ///\n");
+    printf("///                                                                       ///\n");
+    printf("///                                                                       ///\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
     printf("\t\t\t>>> Tecle <ENTER> para continuar...\n");
 }
