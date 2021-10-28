@@ -11,6 +11,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
 //=========> Assinatura das funções
 
 //Telas
@@ -23,37 +29,79 @@ void Tela_Menu_Livro(void);
 // Programa principal
 int main(void)
 {
-    Tela_Principal(); //Exibição da Tela Principal
- 
-    int mod; //Variável para capturar escolha do teclado
-    printf("Insira o numero do modulo que deseja escolher: "); //Mensagem
-    scanf("%d", &mod); //Captura do que o usuario digitou
+    int play = 0, cont = 0, mod = 0;
 
-    switch (mod)
+    while (play != 666)
     {
-        case 1:
-        Tela_Menu_Usuario();
-        break;
+        switch (play)
+        {
+            case 0:
+                Tela_Principal(); //Exibição da Tela Principal
+                printf("Insira o numero do modulo que deseja escolher: "); //Mensagem
+                scanf("%d", &mod); //Captura do que o usuario digitou
 
-        case 2:
-        printf("Voce escolheu o modulo de staffs.\n");
-        break;
+                if(mod >= 1 & mod <= 5) {
+                    play = mod;
+                }
+                else {
+                    printf ("\n\tValor invalido!\n");
+                    Sleep(1000);
+                    play = 0;
+                }
+                continue;
+            break;
 
-        case 3:
-        printf("Voce escolheu o modulo de livros.\n");
-        break;
+            case 1: //Modulo Usuario
+            
+                Tela_Menu_Usuario();
+                printf ("\n\t >>>Este modulo ainda está em desenvolvimento, retornando ao menu prinicipal...\n");
+                Sleep(3000);
+                play = 0;
+                continue;
+            
+            break;
 
-        case 4:
-        printf("Voce escolheu o modulo de sobre.\n");
-        break;
+            case 2: //Modulo Staff  
+               
+                system("clear||cls");
+                printf ("\n\t >>>Este modulo ainda está em desenvolvimento, retornando ao menu prinicipal...\n");
+                Sleep(3000);
+                play = 0;
+                continue;
 
-        case 5:
-        Tela_Creditos();
-        break;
+            break;
 
-        default :
-        printf ("Valor invalido, tente novamente!\n");
-        Tela_Principal();
+            case 3: //Modulo Livros
+                
+                Tela_Menu_Livro();
+                printf ("\n\t >>>Este modulo ainda está em desenvolvimento, retornando ao menu prinicipal...\n");
+                Sleep(3000);
+                play = 0;
+                continue;
+
+            break;
+
+            case 4: //Modulo Sobre 
+            
+                Tela_Sobre();
+                printf ("\n\t >>>Este modulo ainda está em desenvolvimento, retornando ao menu prinicipal...\n");
+                Sleep(3000);
+                play = 0;
+                continue;
+
+            break;
+
+            case 5: //Modulo Creditos 
+            
+                Tela_Creditos();
+                printf ("\n\t >>>Este modulo ainda está em desenvolvimento, retornando ao menu prinicipal...\n");
+                Sleep(3000);
+                play = 0;
+                continue;
+
+            break;
+        }
+
     }
 
     system("pause");
@@ -63,6 +111,7 @@ int main(void)
 // Função para exibir informações do projeto
 void Tela_Sobre(void)
 {
+    system("clear||cls");
     printf("\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("///                                                                         ///\n");
@@ -128,8 +177,8 @@ void Tela_Menu_Usuario(void) {
     printf("///          = = = =  Projeto de Controle de Biblioteca  = = = =          ///\n");
     printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
     printf("///          ===================================================          ///\n");
-    printf("///               Developed by  @SusuGostoso - Out, 2021                    ///\n");
-    printf("///             Developed by  @daividfernandoo - Out, 2021                  ///\n");
+    printf("///               Developed by  @SusuGostoso - Out, 2021                  ///\n");
+    printf("///             Developed by  @daividfernandoo - Out, 2021                ///\n");
     printf("///                                                                       ///\n");
     printf("/////////////////////////////////////////////////////////////////////////////\n");
     printf("///                                                                       ///\n");
@@ -146,7 +195,6 @@ void Tela_Menu_Usuario(void) {
     printf("///                                                                       ///\n");
     printf("/////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
-    printf("\t\t\t>>> Tecle <ENTER> para continuar...\n");
 }
 
 void Tela_Creditos(void) {
@@ -183,7 +231,6 @@ void Tela_Creditos(void) {
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
-    printf("\t\t\t>>> Tecle <ENTER> para continuar...\n");
 }
 
 void Tela_Menu_Livro(void) {
@@ -214,5 +261,4 @@ void Tela_Menu_Livro(void) {
     printf("///                                                                       ///\n");
     printf("/////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
-    printf("\t\t\t>>> Tecle <ENTER> para continuar...\n");
 }
