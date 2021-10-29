@@ -19,6 +19,10 @@
 
 //=========> Assinatura das funções
 
+//Defines
+#define MsgEx(msg,...) MensagemErro(msg, (0, ##__VA_ARGS__))
+#define Clear() system("clear||cls")
+
 //Telas Principais
 void Tela_Principal(void);
 void Tela_Menu_Usuario(void);
@@ -27,15 +31,15 @@ void Tela_Menu_Livro(void);
 void Tela_Sobre(void);
 
 //Telas Secundárias
-void MsgError(char msg[256], int *var);
-void MsgEx(char msg[256], int *var, int menu_id);
+void MensagemErro(char msg[256], int mID);
 
-int var_publica = 0;
+//Variáveis púlicas
+int Menu_id = 0;
 
 // Programa principal
 int main(void)
 {
-    int Menu_id = 0, escolha = 0;
+    int escolha = 0;
 
     while (Menu_id != 666)
     {
@@ -50,9 +54,7 @@ int main(void)
                     Menu_id = escolha;
                 }
                 else {
-                    printf ("\n\tValor invalido!\n");
-                    Sleep(1000);
-                    Menu_id = 0;
+                    MsgEx("Valor inválido, tente novamente.");
                 }
                 continue;
             break;
@@ -71,7 +73,7 @@ int main(void)
                 else if(escolha == 0){
                     Menu_id = 0;
                 } else {
-                    MsgEx("Opção inválida, tente novamente!", &Menu_id, 1);
+                    MsgEx("Opção inválida, tente novamente!", 1);
                 }
                 continue;
             
@@ -79,8 +81,8 @@ int main(void)
 
             case 2: //módulo Staff  
                
-                system("clear||cls");
-                MsgError("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...", &Menu_id);
+                Clear();
+                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
                 continue;
 
             break;
@@ -88,7 +90,7 @@ int main(void)
             case 3: //módulo Livros
                 
                 Tela_Menu_Livro();
-                MsgError("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...", &Menu_id);
+                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
                 continue;
 
             break;
@@ -96,7 +98,7 @@ int main(void)
             case 4: //módulo Sobre 
             
                 Tela_Sobre();
-                MsgError("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...", &Menu_id);
+                Menu_id = 0;
                 continue;
 
             break;
@@ -104,32 +106,32 @@ int main(void)
             case 5: //módulo Creditos 
             
                 Tela_Creditos();
-                MsgError("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...", &Menu_id);
+                Menu_id = 0;
                 continue;
 
             break;
 
             case 6: //módulo Usuario: Cadastrar um novo usuario 
-                system("clear||cls");
-                MsgError("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...", &Menu_id);
+                Clear();
+                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
                 continue;
             break;
 
             case 7: //módulo Usuario: Pesquisar os dados de um usuario 
-                system("clear||cls");
-                MsgError("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...", &Menu_id);
+                Clear();
+                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
                 continue;
             break;
 
             case 8: //módulo Usuario: Atualizar o cadastro de um usuario 
-                system("clear||cls");
-                MsgError("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...", &Menu_id);
+                Clear();
+                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
                 continue;
             break;
 
             case 9: //módulo Usuario: Excluir um usuario do sistema 
-                system("clear||cls");
-                MsgError("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...", &Menu_id);
+                Clear();
+                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
                 continue;
             break;
         }
@@ -140,24 +142,17 @@ int main(void)
     return 0;
 }
 
-void MsgError(char msg[256], int *var) //Modo de uso: MsgError("mensagem", &Menu_id)
+void MensagemErro(char msg[256], int mID) //Modo de uso: MsgEx("mensagem", [id do menu a ser voltado])
 {
-    *var = 0;
-    printf ("\n\t >>> %s\n", msg);
-    Sleep(2500);
-}
-
-void MsgEx(char msg[256], int *var, int menu_id) //Modo de uso: MsgError("mensagem", &Menu_id, [id do menu a ser voltado])
-{
-    *var = menu_id;
-    printf ("\n\t >>> %s\n", msg);
-    Sleep(2500);
+    Menu_id = mID;
+    printf ("\n\t <<ERRO>> %s\n", msg);
+    Sleep(2000);
 }
 
 // Função para exibir informações do projeto
 void Tela_Sobre(void)
 {
-    system("clear||cls");
+    Clear();
     printf("\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("///                                                                         ///\n");
@@ -182,10 +177,12 @@ void Tela_Sobre(void)
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
+    printf("\t\t\t>>> Tecle <ENTER> para voltar ao menu principal...\n");
+    getchar();
 }
 
 void Tela_Principal(void) {
-    system("clear||cls");
+    Clear();
     printf("\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("///                                                                         ///\n");
@@ -214,7 +211,7 @@ void Tela_Principal(void) {
 }
 
 void Tela_Menu_Usuario(void) {
-    system("clear||cls");
+    Clear();
     printf("\n");
     printf("/////////////////////////////////////////////////////////////////////////////\n");
     printf("///                                                                       ///\n");
@@ -244,7 +241,7 @@ void Tela_Menu_Usuario(void) {
 }
 
 void Tela_Creditos(void) {
-    system("clear||cls");
+    Clear();
     printf("\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("///                                                                         ///\n");
@@ -277,10 +274,12 @@ void Tela_Creditos(void) {
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
+    printf("\t\t\t>>> Tecle <ENTER> para voltar ao menu principal...\n");
+    getchar();
 }
 
 void Tela_Menu_Livro(void) {
-    system("clear||cls");
+    Clear();
     printf("\n");
     printf("/////////////////////////////////////////////////////////////////////////////\n");
     printf("///                                                                       ///\n");
