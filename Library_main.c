@@ -46,17 +46,25 @@ int main(void)
         switch (Menu_id)
         {
             case 0: //Tela Principal
+
                 Tela_Principal(); //Exibição da Tela Principal
                 printf("Insira o número do módulo que deseja escolher: "); //Mensagem
                 scanf("%d", &escolha); //Captura do que o usuario digitou
 
-                if(escolha >= 1 & escolha <= 5) {
+                if(escolha >= 1 & escolha <= 5) { //Escolha dos meus (1 a 5)
                     Menu_id = escolha;
                 }
-                else {
+                else if(escolha == 0) { //Sair do programa
+                    Clear();
+                    printf("\n\tMuito obrigado pela visita! Até mais!\n\n\n");
+                    Sleep(2000);
+                    Menu_id = 666;
+                }
+                else { //Tratamento de erro
                     MsgEx("Valor inválido, tente novamente.");
                 }
                 continue;
+                
             break;
 
             case 1: //módulo Usuario
@@ -138,7 +146,7 @@ int main(void)
 
     }
 
-    system("pause");
+    //system("pause");
     return 0;
 }
 
