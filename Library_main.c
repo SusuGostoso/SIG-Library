@@ -32,6 +32,7 @@ void Tela_Sobre(void);
 
 //Telas Secundárias
 void MensagemErro(char msg[256], int mID);
+void Escolha_Usuario(int max_opcoes, int incremento);
 
 //Variáveis púlicas
 int Menu_id = 0;
@@ -48,73 +49,47 @@ int main(void)
             case 0: //Tela Principal
 
                 Tela_Principal(); //Exibição da Tela Principal
-                printf("Insira o número do módulo que deseja escolher: "); //Mensagem
-                scanf("%d", &escolha); //Captura do que o usuario digitou
-
-                if(escolha >= 1 & escolha <= 5) { //Escolha dos meus (1 a 5)
-                    Menu_id = escolha;
-                }
-                else if(escolha == 0) { //Sair do programa
-                    Clear();
-                    printf("\n\tMuito obrigado pela visita! Até mais!\n\n\n");
-                    Sleep(2000);
-                    Menu_id = 666;
-                }
-                else { //Tratamento de erro
-                    MsgEx("Valor inválido, tente novamente.");
-                }
+                Escolha_Usuario(4, 0); //Escolha dele, 4 opções, incremento de 0 (se escolher 1, o Menu_id será 1)
                 continue;
                 
             break;
 
             case 1: //módulo Usuario
             
-                Tela_Menu_Usuario();
-                
-                printf("\n\t>>> Digite a opção que deseja escolher: "); //Mensagem
-                scanf("%d", &escolha); //Captura do que o usuario digitou
-
-                if(escolha >= 1 & escolha <= 4) {
-                    escolha += 5;
-                    Menu_id = escolha;
-                }
-                else if(escolha == 0){
-                    Menu_id = 0;
-                } else {
-                    MsgEx("Opção inválida, tente novamente!", 1);
-                }
+                Tela_Menu_Usuario(); //Exibição de Tela 'Usuario'
+                Escolha_Usuario(4, 5); //Escolha dele, 4 opções, incremento de 5 (se escolher 1, o Menu_id será 6)
                 continue;
             
             break;
 
-            case 2: //módulo Staff  
+            case 2: //módulo Livros  
                
+                Tela_Menu_Livro(); //Exibição de Tela 'Livros'
+                Escolha_Usuario(5, 10); //Escolha dele, 5 opções, incremento de 10 (se escolher 1, o Menu_id será 11)
+                continue;
+
+            break;
+
+            case 3: //módulo Sobre
+
+                Tela_Sobre(); //Exibição de Tela 'Sobre'
+                Menu_id = 0; //Menu Principal
+                continue;
+
+            break;
+
+            case 4: //módulo Creditos 
+            
+                Tela_Creditos(); //Exibição de Tela 'Creditos'
+                Menu_id = 0; //Menu Principal
+                continue;
+
+            break;
+
+            case 5: //módulo Staff (em breve)
+            
                 Clear();
                 MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
-                continue;
-
-            break;
-
-            case 3: //módulo Livros
-                
-                Tela_Menu_Livro();
-                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
-                continue;
-
-            break;
-
-            case 4: //módulo Sobre 
-            
-                Tela_Sobre();
-                Menu_id = 0;
-                continue;
-
-            break;
-
-            case 5: //módulo Creditos 
-            
-                Tela_Creditos();
-                Menu_id = 0;
                 continue;
 
             break;
@@ -142,12 +117,47 @@ int main(void)
                 MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
                 continue;
             break;
+
+            default:
+                Clear();
+                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
+                continue;
+
         }
 
     }
 
     //system("pause");
     return 0;
+}
+
+void Escolha_Usuario(int max_opcoes, int incremento)
+{
+    int chose;
+
+    printf("\n\t>>> Digite a opção que deseja escolher: "); //Mensagem
+    scanf("%d", &chose); //Captura do que o usuario digitou
+
+    if(chose >= 1 & chose <= max_opcoes)
+    {
+        chose += incremento;
+        Menu_id = chose;
+    }
+    else if(chose == 0)
+    {
+        if(Menu_id == 0)
+        {
+            Menu_id = 666;
+        }
+        else
+        {
+            Menu_id = 0;
+        }
+    }
+    else
+    {
+        MsgEx("Opção inválida, tente novamente!", Menu_id);
+    }
 }
 
 void MensagemErro(char msg[256], int mID) //Modo de uso: MsgEx("mensagem", [id do menu a ser voltado])
@@ -208,10 +218,10 @@ void Tela_Principal(void) {
     printf("///                             SIG-Library                                 ///\n");
     printf("///                                                                         ///\n");
     printf("///            1. Módulo Usuario                                            ///\n");
-    printf("///            2. Módulo Staff                                              ///\n");
-    printf("///            3. Módulo Livros                                             ///\n");
-    printf("///            4. Módulo Sobre                                              ///\n");
-    printf("///            5. Módulo Creditos                                           ///\n");
+    printf("///            2. Módulo Livros                                             ///\n");
+    printf("///            3. Módulo Sobre                                              ///\n");
+    printf("///            4. Módulo Creditos                                           ///\n");
+    //printf("///            5. Módulo Staff                                              ///\n"); 
     printf("///            0. Sair                                                      ///\n");
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
@@ -310,6 +320,7 @@ void Tela_Menu_Livro(void) {
     printf("///           3. Cadastrar Livro                                          ///\n");
     printf("///           4. Excluir Livro                                            ///\n");
     printf("///           5. Alterar Livro                                            ///\n");
+    printf("///           0. Voltar ao menu principal                                 ///\n");
     printf("///                                                                       ///\n");
     printf("///                                                                       ///\n");
     printf("/////////////////////////////////////////////////////////////////////////////\n");
