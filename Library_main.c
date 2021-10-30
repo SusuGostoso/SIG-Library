@@ -26,13 +26,18 @@
 //Telas Principais
 void Tela_Principal(void);
 void Tela_Menu_Usuario(void);
-void Tela_Creditos(void);
 void Tela_Menu_Livro(void);
+void Tela_Creditos(void);
 void Tela_Sobre(void);
 
 //Telas Secundárias
+void mUsuario(int ID);
+void mLivros(int ID);
+
+//Funções
 void MensagemErro(char msg[256], int mID);
 void Escolha_Usuario(int max_opcoes, int incremento);
+void Header(char title[500]);
 
 //Variáveis púlicas
 int Menu_id = 0;
@@ -94,28 +99,18 @@ int main(void)
 
             break;
 
-            case 6: //módulo Usuario: Cadastrar um novo usuario 
-                Clear();
-                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
+            case 6: case 7: case 8: case 9: //módulo Usuario: pesquisar, cadastrar, alterar, excluir...
+                
+                mUsuario((Menu_id-5));
                 continue;
+
             break;
 
-            case 7: //módulo Usuario: Pesquisar os dados de um usuario 
-                Clear();
-                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
+            case 11: case 12: case 13: case 14: case 15: //módulo Livros: cadastrar, alterar, alugar, excluir e pesquisar.
+                
+                mLivros((Menu_id-10));
                 continue;
-            break;
 
-            case 8: //módulo Usuario: Atualizar o cadastro de um usuario 
-                Clear();
-                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
-                continue;
-            break;
-
-            case 9: //módulo Usuario: Excluir um usuario do sistema 
-                Clear();
-                MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
-                continue;
             break;
 
             default:
@@ -138,7 +133,7 @@ void Escolha_Usuario(int max_opcoes, int incremento)
     printf("\n\t>>> Digite a opção que deseja escolher: "); //Mensagem
     scanf("%d", &chose); //Captura do que o usuario digitou
 
-    if(chose >= 1 & chose <= max_opcoes)
+    if(chose >= 1 && chose <= max_opcoes)
     {
         chose += incremento;
         Menu_id = chose;
@@ -166,6 +161,82 @@ void MensagemErro(char msg[256], int mID) //Modo de uso: MsgEx("mensagem", [id d
     printf ("\n\t <<ERRO>> %s\n", msg);
     Sleep(2000);
 }
+
+void Header(char title[500])
+{
+    Clear();
+    printf("\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                       ///\n");
+    printf("///          ===================================================          ///\n");
+    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
+    printf("///          = = = =  Projeto de Controle de Biblioteca  = = = =          ///\n");
+    printf("%s\n", title);
+    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
+    printf("///          ===================================================          ///\n");
+    printf("///                                                                       ///\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
+    printf("\n");
+}
+
+void mLivros(int ID)
+{
+    switch (ID) //Livros
+    {
+        case 1: //Alugar
+        Header("///          = = = = = = = = =  Alugar  Livro  = = = = = = = = =          ///");
+        MsgEx("Função ainda em desenvolvimento...", 2);
+        break;
+
+        case 2: //Pesquisar
+        Header("///          = = = = = = = = = Pesquisar Livro = = = = = = = = =          ///");
+        MsgEx("Função ainda em desenvolvimento...", 2);
+        break;
+
+        case 3: //Cadastrar
+        Header("///          = = = = = = = = = Cadastrar Livro = = = = = = = = =          ///");
+        MsgEx("Função ainda em desenvolvimento...", 2);
+        break;
+
+        case 4: //Excluir
+        Header("///          = = = = = = = = =  Excluir Livro  = = = = = = = = =          ///");
+        MsgEx("Função ainda em desenvolvimento...", 2);
+        break;
+
+        case 5: //Alterar
+        Header("///          = = = = = = = = =  Alterar Livro  = = = = = = = = =          ///");
+        MsgEx("Função ainda em desenvolvimento...", 2);
+        break;
+    }
+}
+
+void mUsuario(int ID)
+{
+    switch (ID)
+    {
+        case 1: //Cadastrar um novo usuario
+        Header("///          = = = = = = = = Cadastrar Usuário = = = = = = = = =          ///");
+        MsgEx("Função ainda em desenvolvimento...", 1);
+        break;
+
+        case 2: //Pesquisar usuario
+        Header("///          = = = = = = = = Pesquisar Usuário = = = = = = = = =          ///");
+        MsgEx("Função ainda em desenvolvimento...", 1);
+        break;
+
+        case 3: //Atualizar o cadastro de um usuario 
+        Header("///          = = = = = = Atualizar Dados de Usuário  = = = = = =          ///");
+        MsgEx("Função ainda em desenvolvimento...", 1);
+        break;
+
+        case 4: //Excluir um usuario do sistema 
+        Header("///          = = = = = = = =  Excluir Usuário  = = = = = = = = =          ///");
+        MsgEx("Função ainda em desenvolvimento...", 1);
+        break;
+    }
+}
+
+
 
 // Função para exibir informações do projeto
 void Tela_Sobre(void)
