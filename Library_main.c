@@ -48,7 +48,7 @@ void TagBook(int IDTag, char* StrX);
 
 //Variáveis púlicas
 int Menu_id = 0;
-int Logado = 1; //Verificar se o usuário fez login
+int Logado = 0; //Verificar se o usuário fez login
 int Staff = 1; //Verficiar se o usuário é um administrador
 
 // Programa principal
@@ -150,90 +150,85 @@ int main(void)
     return 0;
 }
 
-void Escolha_Usuario(int max_opcoes, int incremento)
-{
-    int chose;
-
-    printf("\n\t>>> Digite a opção que deseja escolher: "); //Mensagem
-    scanf("%d", &chose); //Captura do que o usuario digitou
-
-    if(chose >= 1 && chose <= max_opcoes)
-    {
-        chose += incremento;
-        Menu_id = chose;
-    }
-    else if(chose == 0)
-    {
-        if(Menu_id == 0)
-        {
-            Menu_id = 666;
-        }
-        else
-        {
-            Menu_id = 0;
-        }
-    }
-    else
-    {
-        MsgEx("Opção inválida, tente novamente!", Menu_id);
-    }
-}
-
-void MensagemErro(char msg[256], int mID) //Modo de uso: MsgEx("mensagem", [id do menu a ser voltado])
-{
-    Menu_id = mID;
-    printf ("\n\t <<ERRO>> %s\n", msg);
-    Sleep(2000);
-}
-
-void Msg(char msg[256])
-{
-    printf ("\n\t <<ERRO>> %s\n", msg);
-    Sleep(1000);
-}
-
-void Header(char title[128])
-{
-    Clear();
-    printf("\n");
-    printf("/////////////////////////////////////////////////////////////////////////////\n");
-    printf("///                                                                       ///\n");
-    printf("///          ===================================================          ///\n");
-    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
-    printf("///          = = = =  Projeto de Controle de Biblioteca  = = = =          ///\n");
-    printf("%s\n", title);
-    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
-    printf("///          ===================================================          ///\n");
-    printf("///                                                                       ///\n");
-    printf("/////////////////////////////////////////////////////////////////////////////\n");
-    printf("\n");
-}
-
-void VerificarLogin()
-{
-    if(Logado == 0)
-    {
-        MsgEx("Acesso negado.");
-    }
-}
-
 void tLogin(int ID)
 {
+    
+
     switch (ID) //Login
     {
         case 1: //Login
-        Header("///          = = = = = = = = =  Login Usuário  = = = = = = = = =          ///");
-        MsgEx("Função ainda em desenvolvimento...");
+        {
+            char vUser[50], vPass[50];
+            int Tentativas = 3;
+
+            while(1)
+            {
+                if(Tentativas <= 0)
+                {
+                    Clear();
+                    MsgEx("Você ultrapassou o número de tentativas de login, retornando ao menu principal...");
+                    Menu_id = 0;
+                    break;
+                }
+
+                Clear();
+                Header("///          = = = = = = = = =  Login Usuário  = = = = = = = = =          ///");
+
+                printf("\n\tInforme seu nome de usuário: ");
+                if(scanf("%s", vUser) != 1) {
+                    Tentativas--;
+                    printf("\n\t\tVocê tem %d tentativas.\n", Tentativas);
+                    Msg("Usuário inválido, tente novamente...");
+                    continue;
+                }
+
+                if (strcmp(vUser,"admin") != 0)
+                {
+                    Tentativas--;
+                    printf("\n\t\tVocê tem %d tentativas.\n", Tentativas);
+                    Msg("Usuário inválido.");
+                    continue;
+                }
+
+                printf("\n\tInforme sua senha: ");
+                if(scanf("%s", vPass) != 1) {
+                    Tentativas--;
+                    printf("\n\t\tVocê tem %d tentativas.\n", Tentativas);
+                    Msg("Senha inválida, tente novamente...");
+                    continue;
+                }
+
+                if (strcmp(vPass,"susu123") != 0)
+                {
+                    Tentativas--;
+                    printf("\n\t\tVocê tem %d tentativas.\n", Tentativas);
+                    Msg("Senha inválida, tente novamente.");
+                    continue;
+                }
+
+                Clear();
+                Menu_id = 0;
+                Logado = 1;
+                printf("\n\n\t >>>> Usuário logado com sucesso. Seja bem vindo %s!\n", vUser);
+                Sleep(500);
+                printf("\n\t\tRetornando ao menu principal...");
+                Sleep(1500);
+                break;
+            }
+        
+        }
         break;
 
         case 2: //Cadastra
-        tUsuario(1);
+
+            tUsuario(1);
+        
         break;
 
         case 3: //Esqueci a senha
-        Header("///          = = = = = = = =   Recuperar Senha   = = = = = = = =          ///");
-        Logado = 1;
-        MsgEx("Função ainda em desenvolvimento...");
+            Header("///          = = = = = = = =   Recuperar Senha   = = = = = = = =          ///");
+            Logado = 1;
+            MsgEx("Função ainda em desenvolvimento...");
         break;
     }
 }
@@ -396,44 +391,6 @@ void tLivros(int ID)
     }
 }
 
-
-//const char* calculateMonth(int month)
-void TagBook(int IDTag, char* StrX)
-{
-    switch(IDTag)
-    {
-        case 1: strcpy (StrX, "Administração, Negócios e Economia"); break;
-        case 2: strcpy (StrX, "Arte, Cinema e Fotografia"); break;
-        case 3: strcpy (StrX, "Artesanato, Casa e Estilo de Vida"); break;
-        case 4: strcpy (StrX, "Autoajuda"); break;
-        case 5: strcpy (StrX, "Biografias e Histórias Reais"); break;
-        case 6: strcpy (StrX, "Ciências"); break;
-        case 7: strcpy (StrX, "Computação, Informática e Mídias Digitais"); break;
-        case 8: strcpy (StrX, "Crônicas, Humor e Entretenimento"); break;
-        case 9: strcpy (StrX, "Direito"); break;
-        case 10: strcpy (StrX, "Educação, Referência e Didáticos"); break;
-        case 11: strcpy (StrX, "Engenharia e Transporte"); break;
-        case 12: strcpy (StrX, "Erótico"); break;
-        case 13: strcpy (StrX, "Esportes e Lazer"); break;
-        case 14: strcpy (StrX, "Fantasia, Horror e Ficção Científica"); break;
-        case 15: strcpy (StrX, "Gastronomia e Culinária"); break;
-        case 16: strcpy (StrX, "HQs, Mangás e Graphic Novels"); break;
-        case 17: strcpy (StrX, "História"); break;
-        case 18: strcpy (StrX, "Infantil"); break;
-        case 19: strcpy (StrX, "Inglês e Outras Línguas"); break;
-        case 20: strcpy (StrX, "Jovens e Adolescentes"); break;
-        case 21: strcpy (StrX, "LGBT"); break;
-        case 22: strcpy (StrX, "Literatura e Ficção"); break;
-        case 23: strcpy (StrX, "Medicina"); break;
-        case 24: strcpy (StrX, "Policial, Suspense e Mistério"); break;
-        case 25: strcpy (StrX, "Política, Filosofia e Ciências Sociais"); break;
-        case 26: strcpy (StrX, "Religião e Espiritualidade"); break;
-        case 27: strcpy (StrX, "Romance"); break;
-        case 28: strcpy (StrX, "Saúde e Família"); break;
-        case 29: strcpy (StrX, "Turismo e Guias de Viagem"); break;
-    }
-}
-
 void tUsuario(int ID)
 {
     int etapa = 1; 
@@ -443,9 +400,9 @@ void tUsuario(int ID)
     switch (ID)
     {
         case 1: //Cadastrar um novo usuario 
+            
             while(1)
             {
-
                 Clear();
                 Header("///          = = = = = = = =  Cadastrar Usuário  = = = = = = = =          ///");
 
@@ -477,7 +434,7 @@ void tUsuario(int ID)
                     printf("\n\tOlá, %s.\n\n", nome);
 
                     printf("\tInforme seu número de celular (somente números): ");
-                    if((scanf("%[0-9]", cel) != 1) || (strlen(cel) < 11)) {
+                    if((scanf("%[0-9]", cel) != 1) || (strlen(cel) != 11)) {
                         Msg("Número de celular inválido, tente novamente...");
                         continue;
                     }
@@ -542,7 +499,7 @@ void tUsuario(int ID)
             printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
 
             int z;
-            printf("As informações estão corretas? (1=SIM, 2=NÃO): ");
+            printf("\nAs informações estão corretas? (1=SIM | 2=NÃO): ");
             scanf("%d", &z);
 
             if(z != 1) { //Caso o usuário escolha que as informações estão incorretas, ele retorna a primeira etapa.
@@ -796,4 +753,108 @@ int ValidarData(int dd, int mm, int yy)
         else return 0;
     }
     return 0;
+}
+
+void TagBook(int IDTag, char* StrX)
+{
+    switch(IDTag)
+    {
+        case 1: strcpy (StrX, "Administração, Negócios e Economia"); break;
+        case 2: strcpy (StrX, "Arte, Cinema e Fotografia"); break;
+        case 3: strcpy (StrX, "Artesanato, Casa e Estilo de Vida"); break;
+        case 4: strcpy (StrX, "Autoajuda"); break;
+        case 5: strcpy (StrX, "Biografias e Histórias Reais"); break;
+        case 6: strcpy (StrX, "Ciências"); break;
+        case 7: strcpy (StrX, "Computação, Informática e Mídias Digitais"); break;
+        case 8: strcpy (StrX, "Crônicas, Humor e Entretenimento"); break;
+        case 9: strcpy (StrX, "Direito"); break;
+        case 10: strcpy (StrX, "Educação, Referência e Didáticos"); break;
+        case 11: strcpy (StrX, "Engenharia e Transporte"); break;
+        case 12: strcpy (StrX, "Erótico"); break;
+        case 13: strcpy (StrX, "Esportes e Lazer"); break;
+        case 14: strcpy (StrX, "Fantasia, Horror e Ficção Científica"); break;
+        case 15: strcpy (StrX, "Gastronomia e Culinária"); break;
+        case 16: strcpy (StrX, "HQs, Mangás e Graphic Novels"); break;
+        case 17: strcpy (StrX, "História"); break;
+        case 18: strcpy (StrX, "Infantil"); break;
+        case 19: strcpy (StrX, "Inglês e Outras Línguas"); break;
+        case 20: strcpy (StrX, "Jovens e Adolescentes"); break;
+        case 21: strcpy (StrX, "LGBT"); break;
+        case 22: strcpy (StrX, "Literatura e Ficção"); break;
+        case 23: strcpy (StrX, "Medicina"); break;
+        case 24: strcpy (StrX, "Policial, Suspense e Mistério"); break;
+        case 25: strcpy (StrX, "Política, Filosofia e Ciências Sociais"); break;
+        case 26: strcpy (StrX, "Religião e Espiritualidade"); break;
+        case 27: strcpy (StrX, "Romance"); break;
+        case 28: strcpy (StrX, "Saúde e Família"); break;
+        case 29: strcpy (StrX, "Turismo e Guias de Viagem"); break;
+    }
+}
+
+void MensagemErro(char msg[256], int mID) //Modo de uso: MsgEx("mensagem", [id do menu a ser voltado])
+{
+    Menu_id = mID;
+    printf ("\n\t <<ERRO>> %s\n", msg);
+    Sleep(2000);
+}
+
+void Msg(char msg[256])
+{
+    printf ("\n\t <<ERRO>> %s\n", msg);
+    Sleep(1000);
+}
+
+void Header(char title[128])
+{
+    Clear();
+    printf("\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
+    printf("///                                                                       ///\n");
+    printf("///          ===================================================          ///\n");
+    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
+    printf("///          = = = =  Projeto de Controle de Biblioteca  = = = =          ///\n");
+    printf("%s\n", title);
+    printf("///          = = = = = = = = = = = = = = = = = = = = = = = = = =          ///\n");
+    printf("///          ===================================================          ///\n");
+    printf("///                                                                       ///\n");
+    printf("/////////////////////////////////////////////////////////////////////////////\n");
+    printf("\n");
+}
+
+void VerificarLogin()
+{
+    if(Logado == 0)
+    {
+        Menu_id = 0;
+        MsgEx("Acesso negado.");
+    }
+}
+
+void Escolha_Usuario(int max_opcoes, int incremento)
+{
+    int chose;
+
+    printf("\n\t>>> Digite a opção que deseja escolher: "); //Mensagem
+    scanf("%d", &chose); //Captura do que o usuario digitou
+
+    if(chose >= 1 && chose <= max_opcoes)
+    {
+        chose += incremento;
+        Menu_id = chose;
+    }
+    else if(chose == 0)
+    {
+        if(Menu_id == 0)
+        {
+            Menu_id = 666;
+        }
+        else
+        {
+            Menu_id = 0;
+        }
+    }
+    else
+    {
+        MsgEx("Opção inválida, tente novamente!", Menu_id);
+    }
 }
