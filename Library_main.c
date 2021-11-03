@@ -134,6 +134,7 @@ int main(void)
             case 16: case 17: case 18: //Módulo login: login, cadastro, esqueci minha senha
 
                 tLogin((Menu_id-15));
+                continue;
 
             break;
 
@@ -141,7 +142,6 @@ int main(void)
                 Clear();
                 MsgEx("Este módulo ainda está em desenvolvimento, retornando ao menu prinicipal...");
                 continue;
-
         }
 
     }
@@ -227,8 +227,7 @@ void tLogin(int ID)
         break;
 
         case 2: //Cadastra
-        Header("///          = = = = = = = =  Cadastrar Usuário  = = = = = = = =          ///");
-        MsgEx("Função ainda em desenvolvimento...");
+        tUsuario(1);
         break;
 
         case 3: //Esqueci a senha
@@ -244,19 +243,21 @@ void tLivros(int ID)
     switch (ID) //Livros
     {
         case 1: //Alugar
-        {
+        
             Header("///          = = = = = = = = =  Alugar  Livro  = = = = = = = = =          ///");
             MsgEx("Função ainda em desenvolvimento...", 2);
-        }
+        
+        break;
+
         case 2: //Pesquisar
-        {
+        
             Header("///          = = = = = = = = = Pesquisar Livro = = = = = = = = =          ///");
             MsgEx("Função ainda em desenvolvimento...", 2);
-        }
+        
+        break;
+
         case 3: //Cadastrar
         {
-            //Header("///          = = = = = = = = = Cadastrar Livro = = = = = = = = =          ///");
-
             int cEtapas = 1;
 
             char bNome[128], bAutor[128], bEditora[128], tmpBook[50];
@@ -344,37 +345,54 @@ void tLivros(int ID)
                         Msg("Número inválido, tente novamente...");
                         continue;
                     }
+                    cEtapas++;
+                }
+                else if(cEtapas == 8) //Finalização
+                {
+                    Clear();
+                    //Resumo das informações
+                    printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=[ Informações do Livro ]=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+                    printf("\n\t Autor: %s\n", bAutor);
+                    printf("\n\t Nome: %s\n", bNome);
+                    printf("\n\t Ano de Lançamento: %d\n", bAno);
+                    printf("\n\t Páginas: %d\n", bPaginas);
+                    printf("\n\t Editora: %s\n", bEditora);
+                    printf("\n\t Edição: %d\n", bEdicao);
+                    TagBook(bDepartamento, tmpBook);
+                    printf("\n\t Departamento: [%d] %s\n", bDepartamento, tmpBook);
+                    printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+
+                    printf("As informações estão corretas? (1=SIM, 2=NÃO): ");
+                    if((scanf("%d", &y) != 1)) {
+                        Msg("Número inválido, tente novamente...");
+                        continue;
+                    }
+
+                    if(y != 1) { //Caso o usuário escolha que as informações estão incorretas, ele retorna a primeira etapa.
+                        cEtapas = 1;
+                        continue;
+                    }
                     break;
                 }
             }
-
-            Clear();
-            //Resumo das informações
-            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=[ Informações do Livro ]=-=-=-=-=-=-=-=-=-=-=-=-=\n");
-            printf("\n\t Autor: %s\n", bAutor);
-            printf("\n\t Nome: %s\n", bNome);
-            printf("\n\t Ano de Lançamento: %d\n", bAno);
-            printf("\n\t Páginas: %d\n", bPaginas);
-            printf("\n\t Editora: %s\n", bEditora);
-            printf("\n\t Edição: %d\n", bEdicao);
-
-            TagBook(bDepartamento, tmpBook);
-            printf("\n\t Departamento: [%d] %s\n", bDepartamento, tmpBook);
-
-            Menu_id = 0;
-            printf("\n\t\t\t>>> Tecle <ENTER> para voltar ao menu principal...\n");
-            getchar();
+            
+            MsgEx("Livro cadastrado com sucesso, retornando ao menu livros...", 2);
         }
+        break;
+
         case 4: //Excluir
-        {
+        
             Header("///          = = = = = = = = =  Excluir Livro  = = = = = = = = =          ///");
             MsgEx("Função ainda em desenvolvimento...", 2);
-        }
+        
+        break;
+
         case 5: //Alterar
-        {
+        
             Header("///          = = = = = = = = =  Alterar Livro  = = = = = = = = =          ///");
             MsgEx("Função ainda em desenvolvimento...", 2);
-        }
+        
+        break;
     }
 }
 
@@ -424,8 +442,7 @@ void tUsuario(int ID)
 
     switch (ID)
     {
-        case 1: //Cadastrar um novo usuario
-        { 
+        case 1: //Cadastrar um novo usuario 
             while(1)
             {
 
@@ -434,7 +451,7 @@ void tUsuario(int ID)
 
                 if(etapa == 1) //Nome e Sobrenome
                 {
-                    printf("Informe seu nome: ");
+                    printf("\tInforme seu nome: ");
                     if(scanf("%[A-Z a-z]", nome) != 1) {
                         Msg("Nome inválido, tente novamente...");
                         continue;
@@ -445,7 +462,7 @@ void tUsuario(int ID)
                 {
                     printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("Digite sua data de nascimento (Exemplo: 17/09/1997): ");
+                    printf("\tInforme sua data de nascimento (Exemplo: 17/09/1997): ");
                     scanf("%d/%d/%d", &dd, &mm, &yy);
 
                     if((ValidarData(dd, mm, yy) == 0))
@@ -459,7 +476,7 @@ void tUsuario(int ID)
                 {
                     printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("Informe seu número de celular (somente números): ");
+                    printf("\tInforme seu número de celular (somente números): ");
                     if((scanf("%[0-9]", cel) != 1) || (strlen(cel) < 11)) {
                         Msg("Número de celular inválido, tente novamente...");
                         continue;
@@ -470,7 +487,7 @@ void tUsuario(int ID)
                 {
                     printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("Informe a cidade que você reside: ");
+                    printf("\tInforme a cidade que você reside: ");
                     if(scanf("%[A-Z a-z]", city) != 1) {
                         Msg("Cidade inválida, tente novamente...");
                         continue;
@@ -481,7 +498,7 @@ void tUsuario(int ID)
                 {
                     printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("Informe seu endereço: ");
+                    printf("\tInforme seu endereço: ");
                     if(scanf("%[A-Z a-z.,0-9]", end) != 1) {
                         Msg("Endereço inválido, tente novamente...");
                         continue;
@@ -492,8 +509,8 @@ void tUsuario(int ID)
                 {
                     printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("Informe o seu nome de usuário (exemplo: Susu_Gostoso): ");
-                    if(scanf("%[A-Z_a-z]", city) != 1) {
+                    printf("\tInforme o seu nome de usuário (exemplo: Susu_Gostoso): ");
+                    if(scanf("%[A-Z_a-z]", username) != 1) {
                         Msg("Usuário inválido, utilize somente letras.");
                         continue;
                     }
@@ -503,7 +520,7 @@ void tUsuario(int ID)
                 {
                     printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("Informe sua senha: ");
+                    printf("\tInforme sua senha: ");
                     if(scanf("%s", password) != 1) {
                         Msg("Senha inválida, por favor tente novamente.");
                         continue;
@@ -513,37 +530,54 @@ void tUsuario(int ID)
             }
 
             //Resumo das informações
+            Clear();
             printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=[ Informações gerais ]=-=-=-=-=-=-=-=-=-=-=-=-=\n");
             printf("\n\tNome: %s\n", nome);
             printf("\n\tData de Nascimento: %d/%d/%d\n", dd, mm, yy);
             printf("\n\tCelular: %s\n", cel);
             printf("\n\tCidade: %s\n", city);
             printf("\n\tEndereço: %s\n", end);
-            printf("\n\tNome de usuário: %s\n", cel);
+            printf("\n\tNome de usuário: %s\n", username);
             printf("\n\tSenha: %s\n", password);
-            Menu_id = 0;
-            getchar();
-            getchar();
-            printf("\t\t\t>>> Tecle <ENTER> para voltar ao menu principal...\n");
+            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
 
-        }
+            int z;
+            printf("As informações estão corretas? (1=SIM, 2=NÃO): ");
+            scanf("%d", &z);
+
+            if(z != 1) { //Caso o usuário escolha que as informações estão incorretas, ele retorna a primeira etapa.
+                tUsuario(1);
+            }
+            else {
+                Menu_id = 0;
+                printf("\n\t[INFO] Usuário cadastrado com sucesso, retornando ao menu inicial...\n");
+                Sleep(1500);
+            }
+
+        break;
+
         case 2: //Pesquisar usuario
-        {
+        
             Header("///          = = = = = = = = Pesquisar Usuário = = = = = = = = =          ///");
             MsgEx("Função ainda em desenvolvimento...", 1);
-        }
+        
+        break;
 
         case 3: //Atualizar o cadastro de um usuario 
-        {
+        
             Header("///          = = = = = = Atualizar Dados de Usuário  = = = = = =          ///");
             MsgEx("Função ainda em desenvolvimento...", 1);
-        }
+        
+        break;
 
         case 4: //Excluir um usuario do sistema 
-        {
+        
             Header("///          = = = = = = = =  Excluir Usuário  = = = = = = = = =          ///");
             MsgEx("Função ainda em desenvolvimento...", 1);
-        }
+        
+        break;
+
+
     }
 }
 
