@@ -63,6 +63,8 @@ int main(void)
         {
             case 0: //Tela Principal
 
+
+
                 if(Logado != 0) //Verificar se o usuário está logado
                 {
                     Tela_Principal(); //Exibição da Tela Principal
@@ -152,7 +154,6 @@ int main(void)
 
 void tLogin(int ID)
 {
-    
 
     switch (ID) //Login
     {
@@ -226,9 +227,81 @@ void tLogin(int ID)
         break;
 
         case 3: //Esqueci a senha
-            Header("///          = = = = = = = =   Recuperar Senha   = = = = = = = =          ///");
-            Logado = 1;
-            MsgEx("Função ainda em desenvolvimento...");
+        {
+            int ForgetEx = 1;
+            int dd, mm, yy; //Data de nascimento (dia, mês, ano)
+            char nome[50], cel[12], username[32], password[128];
+
+            while(ForgetEx != 666)
+            {
+                Header("///          = = = = = = = =   Recuperar Senha   = = = = = = = =          ///");
+
+                if(ForgetEx == 1) //Nome e Sobrenome
+                {
+                    printf("\tInforme seu Nome e Sobrenome: ");
+                    if(scanf("%[A-Z a-z]", nome) != 1) {
+                        Msg("Nome inválido, tente novamente...");
+                        continue;
+                    }
+                    ForgetEx++;
+                }
+                else if(ForgetEx == 2) //Data de Nascimento
+                {
+                    printf("\n\tOlá, %s.\n\n", nome);
+
+                    printf("\tInforme sua data de nascimento (Exemplo: 17/09/1997): ");
+                    scanf("%d/%d/%d", &dd, &mm, &yy);
+
+                    if((ValidarData(dd, mm, yy) == 0))
+                    {
+                        Msg("Data inválida, tente novamente...");
+                        continue;
+                    }
+                    ForgetEx++;
+                }
+                else if(ForgetEx == 3) //Número de celular (apenas numeros)
+                {
+                    printf("\n\tOlá, %s.\n", nome);
+
+                    printf("\n\tInforme seu número de celular (somente números): ");
+                    
+                    if ((scanf("%[0-9]", cel) != 1) || (strlen(cel) != 11)) {
+                        Msg("Número de celular inválido, tente novamente...");
+                        continue;
+                    }
+                    ForgetEx++;
+                }
+                else if(ForgetEx == 4) //Usuário
+                {
+                    printf("\n\tOlá, %s.\n\n", nome);
+
+                    printf("\tInforme o seu nome de usuário (exemplo: Susu_Gostoso): ");
+                    if(scanf("%[A-Z_a-z]", username) != 1) {
+                        Msg("Usuário inválido, utilize somente letras.");
+                        continue;
+                    }
+                    ForgetEx++;
+                }
+                else if(ForgetEx == 5) //Nova senha
+                {
+
+                    printf("\n\tOlá, %s.\n\n", nome);
+
+                    printf("\tInforme sua nova senha: ");
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", password) != 1) {
+                        Msg("Senha inválida, por favor tente novamente.");
+                        continue;
+                    }
+
+                    printf("\n\t[INFO] Senha alterada com sucesso, retornando ao menu inicial...\n");
+                    Menu_id = 0;
+                    Sleep(1500);
+                    
+                    ForgetEx = 666;
+                    continue;
+                }
+            }
+        }
         break;
     }
 }
@@ -267,7 +340,7 @@ void tLivros(int ID)
                 if(cEtapas == 1) //Autor
                 {
                     printf("Informe o nome do autor do livro: ");
-                    if(scanf("%[A-Z a-z]", bAutor) != 1) {
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", bAutor) != 1) {
                         Msg("Autor inválido, tente novamente...");
                         continue;
                     }
@@ -276,7 +349,7 @@ void tLivros(int ID)
                 else if(cEtapas == 2) //Nome do Livro
                 {
                     printf("Informe o nome do livro: ");
-                    if(scanf("%[A-Z a-z.()-,0-9]", bNome) != 1) {
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ0-9_]", bNome) != 1) {
                         Msg("Nome inválido, tente novamente...");
                         continue;
                     }
