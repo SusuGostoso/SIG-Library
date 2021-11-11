@@ -48,7 +48,7 @@ void TagBook(int IDTag, char* StrX);
 
 //Variáveis púlicas
 int Menu_id = 0;
-int Logado = 0; //Verificar se o usuário fez login
+int Logado = 1; //Verificar se o usuário fez login
 int Staff = 1; //Verficiar se o usuário é um administrador
 
 // Programa principal
@@ -292,14 +292,33 @@ void tLogin(int ID)
                         Msg("Senha inválida, por favor tente novamente.");
                         continue;
                     }
-
-                    printf("\n\t[INFO] Senha alterada com sucesso, retornando ao menu inicial...\n");
-                    Menu_id = 0;
-                    Sleep(1500);
                     
                     ForgetEx = 666;
                     continue;
                 }
+            }
+
+            //Resumo das informações
+            Header("///          = = = = = = = =   Recuperar Senha   = = = = = = = =          ///");
+            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=[ Informações gerais ]=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+            printf("\n\tNome: %s\n", nome);
+            printf("\n\tData de Nascimento: %d/%d/%d\n", dd, mm, yy);
+            printf("\n\tCelular: %s\n", cel);
+            printf("\n\tNome de usuário: %s\n", username);
+            printf("\n\tNova Senha: %s\n", password);
+            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+
+            int z;
+            printf("\nAs informações estão corretas? (1=SIM | 2=NÃO): ");
+            scanf("%d", &z);
+
+            if(z != 1) { //Caso o usuário escolha que as informações estão incorretas, ele retorna a primeira etapa.
+                tLogin(3);
+            }
+            else {
+                Menu_id = 0;
+                printf("\n\t[INFO] Senha alterada com sucesso, retornando ao menu inicial...\n");
+                Sleep(1500);
             }
         }
         break;
@@ -482,7 +501,7 @@ void tUsuario(int ID)
                 if(etapa == 1) //Nome e Sobrenome
                 {
                     printf("\tInforme seu nome: ");
-                    if(scanf("%[A-Z a-z]", nome) != 1) {
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", nome) != 1) {
                         Msg("Nome inválido, tente novamente...");
                         continue;
                     }
@@ -518,7 +537,7 @@ void tUsuario(int ID)
                     printf("\n\tOlá, %s.\n\n", nome);
 
                     printf("\tInforme a cidade que você reside: ");
-                    if(scanf("%[A-Z a-z]", city) != 1) {
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", city) != 1) {
                         Msg("Cidade inválida, tente novamente...");
                         continue;
                     }
@@ -529,7 +548,7 @@ void tUsuario(int ID)
                     printf("\n\tOlá, %s.\n\n", nome);
 
                     printf("\tInforme seu endereço: ");
-                    if(scanf("%[A-Z a-z.,0-9]", end) != 1) {
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ.,0-9]", end) != 1) {
                         Msg("Endereço inválido, tente novamente...");
                         continue;
                     }
@@ -540,7 +559,7 @@ void tUsuario(int ID)
                     printf("\n\tOlá, %s.\n\n", nome);
 
                     printf("\tInforme o seu nome de usuário (exemplo: Susu_Gostoso): ");
-                    if(scanf("%[A-Z_a-z]", username) != 1) {
+                    if(scanf("%[A-Za-z_]", username) != 1) {
                         Msg("Usuário inválido, utilize somente letras.");
                         continue;
                     }
@@ -551,7 +570,7 @@ void tUsuario(int ID)
                     printf("\n\tOlá, %s.\n\n", nome);
 
                     printf("\tInforme sua senha: ");
-                    if(scanf("%s", password) != 1) {
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ.,@#$()0-9]", password) != 1) {
                         Msg("Senha inválida, por favor tente novamente.");
                         continue;
                     }
@@ -587,10 +606,36 @@ void tUsuario(int ID)
         break;
 
         case 2: //Pesquisar usuario
-        
-            Header("///          = = = = = = = = Pesquisar Usuário = = = = = = = = =          ///");
-            MsgEx("Função ainda em desenvolvimento...", 1);
-        
+        {
+            char FindName[128];
+
+            while(1)
+            {
+                Header("///          = = = = = = = = Pesquisar Usuário = = = = = = = = =          ///");
+
+                printf("\tInforme nome/telefone/endereço do usuário: ");
+                if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ.,0-9]", FindName) != 1) {
+                    Msg("Usuário inválido, tente novamente...");
+                    continue;
+                }
+
+                printf("\n\tProcurando: %s\n", FindName);
+
+                if (strcmp(FindName,"sueliton") != 0)
+                {
+                    Msg("Usuário não encontrado, tente novamente.");
+                    continue;
+                }
+                else
+                {
+                    Menu_id = 0;
+                    printf("\n\t[INFO] Usuário %s encontrado com sucesso, retornando ao menu inicial...\n", nome);
+                    Sleep(1500);
+                }
+
+                break;
+            }
+        }
         break;
 
         case 3: //Atualizar o cadastro de um usuario 
