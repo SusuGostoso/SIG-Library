@@ -46,15 +46,49 @@ void Header(char title[128]);
 int ValidarData(int dd, int mm, int yy);
 void TagBook(int IDTag, char* StrX);
 
+void ListUsers(void);
+int GetFreeUser();
+void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin);
+int AbrirArquivo(char Arquivo[40], char* StrF);
+void CarregarUsuarios(void);
+
 //Variáveis púlicas
 int Menu_id = 0;
-int Logado = 1; //Verificar se o usuário fez login
-int Staff = 1; //Verficiar se o usuário é um administrador
+int Logado = 0; //Verificar se o usuário fez login
+int Staff = 0; //Verficiar se o usuário é um administrador
+
+//usuários fictícios
+#define MAX_USERS 10
+#define MAX_LIVROS 50
+
+struct user_data_nascimento {
+    int dia, mes, ano;
+};
+
+struct user_estrutura
+{
+    char nome[128];
+    char celular[12];
+    char cidade[128];
+    char endereco[128];
+    char nomeusuario[32];
+    char senha[128];
+    int admin;
+    struct user_data_nascimento nascimento;
+}
+Usuario[MAX_USERS];
 
 // Programa principal
 int main(void)
 {
     setlocale(LC_ALL, "Portuguese");
+    
+    CarregarUsuarios(); //Carregar Usuários
+
+    if(Logado != -1) {
+        Staff = Usuario[Logado].admin;
+    }
+
     int escolha = 0;
 
     while (Menu_id != 666)
@@ -63,9 +97,10 @@ int main(void)
         {
             case 0: //Tela Principal
 
+                //ListUsers();
+                //Sleep(10000);
 
-
-                if(Logado != 0) //Verificar se o usuário está logado
+                if(Logado != -1) //Verificar se o usuário está logado
                 {
                     Tela_Principal(); //Exibição da Tela Principal
                     Escolha_Usuario(4, 0); //Escolha dele, 4 opções, incremento de 0 (se escolher 1, o Menu_id será 1)
@@ -88,7 +123,7 @@ int main(void)
             break;
 
             case 2: //módulo Livros  
-               
+
                 Tela_Menu_Livro(); //Exibição de Tela 'Livros'
                 Escolha_Usuario(5, 10); //Escolha dele, 5 opções, incremento de 10 (se escolher 1, o Menu_id será 11)
                 continue;
@@ -154,7 +189,6 @@ int main(void)
 
 void tLogin(int ID)
 {
-
     switch (ID) //Login
     {
         case 1: //Login
@@ -183,14 +217,6 @@ void tLogin(int ID)
                     continue;
                 }
 
-                if (strcmp(vUser,"admin") != 0)
-                {
-                    Tentativas--;
-                    printf("\n\t\tVocê tem %d tentativas.\n", Tentativas);
-                    Msg("Usuário inválido.");
-                    continue;
-                }
-
                 printf("\n\tInforme sua senha: ");
                 if(scanf("%s", vPass) != 1) {
                     Tentativas--;
@@ -199,22 +225,52 @@ void tLogin(int ID)
                     continue;
                 }
 
-                if (strcmp(vPass,"susu123") != 0)
+                int l = 0;
+                
+                Logado = -1;
+                while(l < MAX_USERS)
+                {
+                    if (strcmp(Usuario[l].nome, "InvalidUser") != 0)
+                    {
+                        if (strcmp(vUser, Usuario[l].nomeusuario) == 0)
+                        {
+                            if (strcmp(vPass, Usuario[l].senha) == 0)
+                            {
+                                Logado = l;
+                                break;
+                            }
+                        }
+                    }
+                    l++;
+                }
+
+                if(Logado != -1) //Logou com sucesso
+                {
+                    Clear();
+                    Menu_id = 0;
+                    printf("\n\n\t >>>> Usuário logado com sucesso. Seja bem vindo %s!\n", vUser);
+                    printf("\n\t Usuário: %s", Usuario[Logado].nome);
+                    printf("\n\t Celular: %s", Usuario[Logado].celular);
+                    printf("\n\t Cidade: %s", Usuario[Logado].cidade);
+                    printf("\n\t Endereço: %s", Usuario[Logado].endereco);
+                    printf("\n\t Nome de Usuário: %s", Usuario[Logado].nomeusuario);
+                    printf("\n\t Data de Nascimento: %d/%d/%d", Usuario[Logado].nascimento.dia, Usuario[Logado].nascimento.mes, Usuario[Logado].nascimento.ano);
+                    printf("\n\t Admin: %d", Usuario[Logado].admin);
+                    
+                    Staff = Usuario[Logado].admin;
+
+                    Sleep(500);
+                    printf("\n\n\t\tRetornando ao menu principal...");
+                    Sleep(1600);
+                    break;
+                }
+                else
                 {
                     Tentativas--;
                     printf("\n\t\tVocê tem %d tentativas.\n", Tentativas);
-                    Msg("Senha inválida, tente novamente.");
+                    Msg("Usuário e/ou senha incorretos.");
                     continue;
                 }
-
-                Clear();
-                Menu_id = 0;
-                Logado = 1;
-                printf("\n\n\t >>>> Usuário logado com sucesso. Seja bem vindo %s!\n", vUser);
-                Sleep(500);
-                printf("\n\t\tRetornando ao menu principal...");
-                Sleep(1500);
-                break;
             }
         
         }
@@ -598,6 +654,9 @@ void tUsuario(int ID)
                 tUsuario(1);
             }
             else {
+
+                RegistrarUsuario(nome, cel, city, end, username, password, dd, mm, yy, 0);
+
                 Menu_id = 0;
                 printf("\n\t[INFO] Usuário cadastrado com sucesso, retornando ao menu inicial...\n");
                 Sleep(1500);
@@ -608,6 +667,7 @@ void tUsuario(int ID)
         case 2: //Pesquisar usuario
         {
             char FindName[128];
+            int i;
 
             while(1)
             {
@@ -619,20 +679,25 @@ void tUsuario(int ID)
                     continue;
                 }
 
-                printf("\n\tProcurando: %s\n", FindName);
 
-                if (strcmp(FindName,"sueliton") != 0)
+                printf("\n\tUsuário(s) encontrado(s):\n");
+                for(i = 0; i < MAX_USERS; i++)
                 {
-                    Msg("Usuário não encontrado, tente novamente.");
-                    continue;
+                    if (strcmp(Usuario[i].nome, "InvalidUser") != 0) //Verificando se o usuário é válido...
+                    {
+                        if(strstr(Usuario[i].nome, FindName) != NULL 
+                            || strstr(Usuario[i].celular, FindName) != NULL 
+                            || strstr(Usuario[i].cidade, FindName) != NULL 
+                            || strstr(Usuario[i].endereco, FindName) != NULL
+                            || strstr(Usuario[i].nomeusuario, FindName) != NULL)
+                        {
+                            printf("\n\t\t  >> %s:", Usuario[i].nome);
+                            printf("\n\t\t\t Nome de usuário: %s", Usuario[i].nomeusuario);
+                            printf("\n\t\t\t Data de Nascimento: %d/%d/%d\n", Usuario[i].nascimento.dia, Usuario[i].nascimento.mes, Usuario[i].nascimento.ano);
+                        }
+                    }
                 }
-                else
-                {
-                    Menu_id = 0;
-                    printf("\n\t[INFO] Usuário %s encontrado com sucesso, retornando ao menu inicial...\n", nome);
-                    Sleep(1500);
-                }
-
+                Sleep(10000);
                 break;
             }
         }
@@ -653,6 +718,179 @@ void tUsuario(int ID)
         break;
 
 
+    }
+}
+
+int GetFreeUser()
+{
+    int i = 0;
+    char nome[20];
+
+    while (1)
+    {
+        FILE *file;
+        sprintf(nome, "Users\\User_%d.txt", i);
+        file = fopen(nome, "r");
+
+        if((file != NULL)) {
+            i++;
+            fclose(file);
+            continue;
+        }
+        break;
+    }
+    return i;
+}
+
+/*
+struct user_estrutura
+{
+    char nome[128];
+    char celular[12];
+    char cidade[128];
+    char endereco[128];
+    char nomeusuario[32];
+    char senha[128];
+    int admin;
+    struct user_data_nascimento nascimento;
+}
+*/
+
+void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin)
+{
+    char str[256];
+    int ID_User = GetFreeUser();
+
+    FILE *file; //Criando variável para manipulação de arquivos
+    sprintf(str, "Users\\User_%d.txt", ID_User);
+    file = fopen(str, "w"); //Abrindo o arquivo
+
+    fprintf(file, "%s\n", uNome); //Nome Completo
+    fprintf(file, "%s\n", uCel); //Celular
+    fprintf(file, "%s\n", uCidade); //Cidade
+    fprintf(file, "%s\n", uEndereco); //Endereço
+    fprintf(file, "%s\n", Username); //Nome de Usuário
+    fprintf(file, "%s\n", uSenha); //Senha
+    fprintf(file, "%d\n", uDiaNasc); //Dia de Nascimento
+    fprintf(file, "%d\n", uMesNasc); //Mês de Nascimento
+    fprintf(file, "%d\n", uAnoNasc); //Ano de Nascimento
+    fprintf(file, "%d", uAdmin); //Ano de Nascimento
+    fclose(file); //Fechamento do arquivo
+    //printf("Usuário ID %d (%s): cadastrado com sucesso.\n", ID_User, uNome);
+    //Menu_id = 2;
+    //Sleep(2000);
+}
+
+void CarregarUsuarios(void)
+{
+    char Susu[256], nome[25];
+
+    int i, x = 0;
+    char *token;
+
+    char tmpq[256];
+    char *temp[10];
+
+    for(i = 0; i < MAX_USERS; i++)
+    {
+        x = 0;
+
+        sprintf(nome, "Users\\User_%d.txt", i);
+        
+        if(AbrirArquivo(nome, Susu))
+        {
+            token = strtok(Susu, "\n");
+            while( token != NULL )
+            {
+                sprintf(tmpq, "%s", token);
+                switch (x)
+                {
+                    case 0: 
+                        strcpy(Usuario[i].nome, tmpq);
+                        break;
+                    case 1: 
+                        strcpy(Usuario[i].celular, tmpq);
+                        break;
+                    case 2: 
+                        strcpy(Usuario[i].cidade, tmpq);
+                        break;
+                    case 3: 
+                        strcpy(Usuario[i].endereco, tmpq);
+                        break;
+                    case 4: 
+                        strcpy(Usuario[i].nomeusuario, tmpq);
+                        break;
+                    case 5: 
+                        strcpy(Usuario[i].senha, tmpq);
+                        break;
+                    case 6: 
+                        Usuario[i].nascimento.dia = strtol(tmpq, temp, 10);
+                        break;
+                    case 7: 
+                        Usuario[i].nascimento.mes = strtol(tmpq, temp, 10);
+                        break;
+                    case 8: 
+                        Usuario[i].nascimento.ano = strtol(tmpq, temp, 10);
+                        break;
+                    case 9: 
+                        Usuario[i].admin = strtol(tmpq, temp, 10);
+                        break;
+                } //Fim do Switch
+                
+                token = strtok(NULL, "\n");
+                x++;
+            } // Fim do While
+            //printf("\n");
+            //printf("[%d] '%s' Carregado com sucesso. \n", i, Usuario[i].nome);
+        } //Fim do if
+        else
+        {
+            strcpy(Usuario[i].nome, "InvalidUser");
+        }
+    } //Fim do for
+}
+
+int AbrirArquivo(char Arquivo[40], char* StrF)
+{
+    char texto[256];
+    strcpy(StrF, "");
+
+    FILE *file; //Criando variável para manipulação de arquivos
+    file = fopen(Arquivo, "r");
+    if((file != NULL))
+    {
+        while(fgets(texto, sizeof(texto), file) != NULL)
+        {
+             strcat(StrF, texto);
+        }
+    } 
+    else
+    {
+        fclose(file);
+        return 0;
+    }
+    fclose(file);
+    return 1;
+}
+
+void ListUsers(void)
+{
+    int l;
+
+    for(l = 0; l < MAX_USERS; l++)
+    {
+        if (strcmp(Usuario[l].nome, "InvalidUser") != 0)
+        {
+            printf("\n\n\n==================================================\n");
+            printf("\n\t Usuário: [%d]: %s", l, Usuario[l].nome);
+            printf("\n\t Celular: %s", Usuario[l].celular);
+            printf("\n\t Cidade: %s", Usuario[l].cidade);
+            printf("\n\t Endereço: %s", Usuario[l].endereco);
+            printf("\n\t Nome de Usuário: %s", Usuario[l].nomeusuario);
+            printf("\n\t Senha: %s", Usuario[l].senha);
+            printf("\n\t Admin: %d", Usuario[l].admin);
+            printf("\n\t Data de Nascimento: %d/%d/%d", Usuario[l].nascimento.dia, Usuario[l].nascimento.mes, Usuario[l].nascimento.ano);
+        }
     }
 }
 
@@ -690,6 +928,16 @@ void Tela_Sobre(void)
 
 void Tela_Principal(void) {
     Clear();
+    
+    if(Staff != 0)
+    {
+        printf("\tBem vindo, administrador %s.\n", Usuario[Logado].nome);
+    }
+    else
+    {
+        printf("\tBem vindo, %s.\n", Usuario[Logado].nome);
+    }
+    
     printf("\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("///                                                                         ///\n");
@@ -743,8 +991,6 @@ void Tela_Login(void) {
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
 }
-
-
 
 void Tela_Menu_Usuario(void) {
     Clear();
@@ -941,7 +1187,7 @@ void Header(char title[128])
 
 void VerificarLogin()
 {
-    if(Logado == 0)
+    if(Logado == -1)
     {
         Menu_id = 0;
         MsgEx("Acesso negado.");
