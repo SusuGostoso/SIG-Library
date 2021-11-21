@@ -51,6 +51,7 @@ int GetFreeUser();
 void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin);
 int AbrirArquivo(char Arquivo[40], char* StrF);
 void CarregarUsuarios(void);
+int ExcluirUsuario(char username[128]);
 
 //Variáveis púlicas
 int Menu_id = 0;
@@ -223,8 +224,8 @@ void tLogin(int ID)
                 }
 
                 int l = 0;
-                
                 Logado = -1;
+
                 while(l < MAX_USERS)
                 {
                     if (strcmp(Usuario[l].nome, "InvalidUser") != 0)
@@ -289,7 +290,18 @@ void tLogin(int ID)
             {
                 Header("///          = = = = = = = =   Recuperar Senha   = = = = = = = =          ///");
 
-                if(ForgetEx == 1) //Nome e Sobrenome
+                if(ForgetEx == 1) //Nome de usuário
+                {
+                    printf("\n\tOlá, %s.\n\n", nome);
+
+                    printf("\tInforme o seu nome de usuário (exemplo: Susu_Gostoso): ");
+                    if(scanf("%[A-Z_a-z]", username) != 1) {
+                        Msg("Usuário inválido, utilize somente letras.");
+                        continue;
+                    }
+                    ForgetEx++;
+                }
+                else if(ForgetEx == 2) //Nome e Sobrenome
                 {
                     printf("\tInforme seu Nome e Sobrenome: ");
                     if(scanf("%[A-Z a-z]", nome) != 1) {
@@ -298,7 +310,7 @@ void tLogin(int ID)
                     }
                     ForgetEx++;
                 }
-                else if(ForgetEx == 2) //Data de Nascimento
+                else if(ForgetEx == 3) //Data de Nascimento
                 {
                     printf("\n\tOlá, %s.\n\n", nome);
 
@@ -312,7 +324,7 @@ void tLogin(int ID)
                     }
                     ForgetEx++;
                 }
-                else if(ForgetEx == 3) //Número de celular (apenas numeros)
+                else if(ForgetEx == 4) //Número de celular (apenas numeros)
                 {
                     printf("\n\tOlá, %s.\n", nome);
 
@@ -320,17 +332,6 @@ void tLogin(int ID)
                     
                     if ((scanf("%[0-9]", cel) != 1) || (strlen(cel) != 11)) {
                         Msg("Número de celular inválido, tente novamente...");
-                        continue;
-                    }
-                    ForgetEx++;
-                }
-                else if(ForgetEx == 4) //Usuário
-                {
-                    printf("\n\tOlá, %s.\n\n", nome);
-
-                    printf("\tInforme o seu nome de usuário (exemplo: Susu_Gostoso): ");
-                    if(scanf("%[A-Z_a-z]", username) != 1) {
-                        Msg("Usuário inválido, utilize somente letras.");
                         continue;
                     }
                     ForgetEx++;
@@ -749,10 +750,70 @@ void tUsuario(int ID)
         break;
 
         case 4: //Excluir um usuario do sistema 
+        {
+            char UsernameRemove[32];
+            int i, uRemove = -1;
+
+            while(1)
+            {
+                Header("///          = = = = = = = =  Excluir Usuário  = = = = = = = = =          ///");
+
+                printf("\n\tInforme o nome de usuário da pessoa: ");
+                scanf("%s", UsernameRemove);
+
+                for(i = 0; i < MAX_USERS; i++)
+                {
+                    if (strcmp(Usuario[i].nome, "InvalidUser") != 0) //Verificar se o usuário é válido
+                    {
+                        if (strcmp(Usuario[i].nomeusuario, UsernameRemove) == 0) //Verificar se o nome de usuário existe
+                        {
+                            uRemove = i;
+                            break;
+                        }
+                    }
+                }
+
+                i = 0;
+
+                if(uRemove != -1)
+                {
+                    printf("\n\tNome: %s", Usuario[uRemove].nome);
+                    printf("\n\tCelular: %s", Usuario[uRemove].celular);
+                    printf("\n\tCidade: %s", Usuario[uRemove].cidade);
+                    printf("\n\tEndereço: %s", Usuario[uRemove].endereco);
+
+                    printf("\n\n\t Tem certeza que deseja excluir esse usuário? (1=SIM, 0=NÃO): ");
+                    scanf("%d", &i);
+
+                    if(i == 1) //Confirmação
+                    {
+                        
+
+                        if(ExcluirUsuario(Usuario[uRemove].nomeusuario))
+                        {
+                            printf("\n\t\t\t\tUSUÁRIO REMOVIDO COM SUCESSO.\n");
+                        }
+                    }
+
+                    Menu_id = 1;
+                    printf("\n\t\tRetornando ao menu de usuário...\n");
+                    Sleep(2000);
+                    break;
+                }
+                else
+                {
+                    printf("\n\t[ERRO]: Nome de usuário não encontrado.\n");
+                    Sleep(1200);
+                    continue;
+                }
+            }
+
+
+
+            //MsgEx("Função ainda em desenvolvimento...", 1);
         
-            Header("///          = = = = = = = =  Excluir Usuário  = = = = = = = = =          ///");
-            MsgEx("Função ainda em desenvolvimento...", 1);
-        
+            
+        }
         break;
 
 
@@ -817,6 +878,45 @@ void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uE
     //printf("Usuário ID %d (%s): cadastrado com sucesso.\n", ID_User, uNome);
     //Menu_id = 2;
     //Sleep(2000);
+}
+
+int ExcluirUsuario(char username[128])
+{
+    char Susu[256], nome[25], tmpq[256], *token;
+    int i, x = 0, removed = 0;
+
+    for(i = 0; i < MAX_USERS; i++)
+    {
+        if(removed != 0) {
+            break;
+        }
+
+        x = 0;
+        sprintf(nome, "Users\\User_%d.txt", i);
+        
+        if(AbrirArquivo(nome, Susu))
+        {
+            token = strtok(Susu, "\n");
+            while( token != NULL )
+            {
+                sprintf(tmpq, "%s", token);
+                
+                if(x == 4)
+                {
+                    if (strcmp(username, tmpq) == 0) //Se o usuário existir...
+                    {
+                        remove(nome);
+                        removed = 1;
+                        break;
+                    }
+                }
+                
+                token = strtok(NULL, "\n");
+                x++;
+            }
+        }
+    } //Fim do for
+    return removed;
 }
 
 void CarregarUsuarios(void)
@@ -967,12 +1067,10 @@ void Tela_Sobre(void)
 void Tela_Principal(void) {
     Clear();
     
-    if(Staff != 0)
-    {
+    if(Staff != 0) {
         printf("\tBem vindo, administrador %s.\n", Usuario[Logado].nome);
     }
-    else
-    {
+    else {
         printf("\tBem vindo, %s.\n", Usuario[Logado].nome);
     }
     
@@ -1239,24 +1337,19 @@ void Escolha_Usuario(int max_opcoes, int incremento)
     printf("\n\t>>> Digite a opção que deseja escolher: "); //Mensagem
     scanf("%d", &chose); //Captura do que o usuario digitou
 
-    if(chose >= 1 && chose <= max_opcoes)
-    {
+    if(chose >= 1 && chose <= max_opcoes) {
         chose += incremento;
         Menu_id = chose;
     }
-    else if(chose == 0)
-    {
-        if(Menu_id == 0)
-        {
+    else if(chose == 0) {
+        if(Menu_id == 0) {
             Menu_id = 666;
         }
-        else
-        {
+        else {
             Menu_id = 0;
         }
     }
-    else
-    {
+    else {
         MsgEx("Opção inválida, tente novamente!", Menu_id);
     }
 }
