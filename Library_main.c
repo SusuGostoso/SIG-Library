@@ -46,12 +46,18 @@ void Header(char title[128]);
 int ValidarData(int dd, int mm, int yy);
 void TagBook(int IDTag, char* StrX);
 
+//Funções de Usuário
 void ListUsers(void);
-int GetFreeUser();
+int GetFree(int prefixo); //BOOK ou USER (para livros e usuários)
 void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin);
 int AbrirArquivo(char Arquivo[40], char* StrF);
 void CarregarUsuarios(void);
 int ExcluirUsuario(char username[128]);
+
+//Funções Livros
+void RegistrarLivro(char bNome[128], char bAutor[128], int bAno, int bPaginas, char bEditora[128], int bEdicao, int bDepartamento);
+void CarregarLivros(void);
+void ListarLivros(void);
 
 //Variáveis púlicas
 int Menu_id = 0;
@@ -61,6 +67,8 @@ int Staff = 0; //Verficiar se o usuário é um administrador
 //usuários fictícios
 #define MAX_USERS 10
 #define MAX_LIVROS 50
+#define BOOK 60001
+#define USER 60002
 
 struct user_data_nascimento {
     int dia, mes, ano;
@@ -79,12 +87,25 @@ struct user_estrutura
 }
 Usuario[MAX_USERS];
 
+struct iBook
+{
+    int id;
+    char nome[128];
+    char autor[128];
+    int ano;
+    int paginas;
+    char editora[128];
+    int edicao;
+    int departamento;
+}Livros[MAX_LIVROS];
+
 // Programa principal
 int main(void)
 {
     setlocale(LC_ALL, "Portuguese");
     
     CarregarUsuarios(); //Carregar Usuários
+    CarregarLivros(); //Carregar Livros
 
     if(Logado != -1) {
         Staff = Usuario[Logado].admin;
@@ -406,7 +427,6 @@ void tLivros(int ID)
 
             while(1)
             {
-                Clear();
                 Header("///          = = = = = = = = = Cadastrar Livro = = = = = = = = =          ///");
                 printf("\n");
 
@@ -422,7 +442,7 @@ void tLivros(int ID)
                 else if(cEtapas == 2) //Nome do Livro
                 {
                     printf("Informe o nome do livro: ");
-                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ0-9_]", bNome) != 1) {
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ0-9_:]", bNome) != 1) {
                         Msg("Nome inválido, tente novamente...");
                         continue;
                     }
@@ -508,6 +528,11 @@ void tLivros(int ID)
                         Msg("Número inválido, tente novamente...");
                         continue;
                     }
+
+
+                    //Registro 
+                    RegistrarLivro(bNome, bAutor, bAno, bPaginas, bEditora, bEdicao, bDepartamento);
+                    //(char bNome[128], char bAutor[128], int bAno, int bPaginas, char bEditora[128], int bEdicao, int bDepartamento)
 
                     if(y != 1) { //Caso o usuário escolha que as informações estão incorretas, ele retorna a primeira etapa.
                         cEtapas = 1;
@@ -787,11 +812,14 @@ void tUsuario(int ID)
 
                     if(i == 1) //Confirmação
                     {
-                        
-
                         if(ExcluirUsuario(Usuario[uRemove].nomeusuario))
                         {
                             printf("\n\t\t\t\tUSUÁRIO REMOVIDO COM SUCESSO.\n");
+                        }
+                        else
+                        {
+                            Msg("Não foi possível excluir o usuário.");
+                            continue;
                         }
                     }
 
@@ -802,25 +830,19 @@ void tUsuario(int ID)
                 }
                 else
                 {
-                    printf("\n\t[ERRO]: Nome de usuário não encontrado.\n");
-                    Sleep(1200);
+                    Msg("Nome de usuário não encontrado.");
                     continue;
                 }
-            }
-
-
-
-            //MsgEx("Função ainda em desenvolvimento...", 1);
-        
-            
+            }   
         }
         break;
-
-
     }
 }
 
-int GetFreeUser()
+//Livros\\Livro
+//Users\\User
+
+int GetFree(int prefixo)
 {
     int i = 0;
     char nome[20];
@@ -828,7 +850,9 @@ int GetFreeUser()
     while (1)
     {
         FILE *file;
-        sprintf(nome, "Users\\User_%d.txt", i);
+        if(prefixo == BOOK) sprintf(nome, "Livros\\Livro_%d.txt", i);
+        else sprintf(nome, "Users\\User_%d.txt", i);
+        
         file = fopen(nome, "r");
 
         if((file != NULL)) {
@@ -841,24 +865,115 @@ int GetFreeUser()
     return i;
 }
 
-/*
-struct user_estrutura
+void RegistrarLivro(char bNome[128], char bAutor[128], int bAno, int bPaginas, char bEditora[128], int bEdicao, int bDepartamento)
 {
-    char nome[128];
-    char celular[12];
-    char cidade[128];
-    char endereco[128];
-    char nomeusuario[32];
-    char senha[128];
-    int admin;
-    struct user_data_nascimento nascimento;
+    char str[256];
+    int ID_Book = GetFree(BOOK);
+
+    FILE *file; //Criando variável para manipulação de arquivos
+    sprintf(str, "Livros\\Livro_%d.txt", ID_Book);
+    file = fopen(str, "w"); //Abrindo o arquivo
+
+    fprintf(file, "%d\n", (ID_Book+100));   //ID do Livro
+    fprintf(file, "%s\n", bNome);           //Nome do Livro
+    fprintf(file, "%s\n", bAutor);          //Autor do Livro
+    fprintf(file, "%d\n", bAno);            //Ano de Lançamento do Livro
+    fprintf(file, "%d\n", bPaginas);        //Número de páginas do Livro
+    fprintf(file, "%s\n", bEditora);        //Editora do Livro
+    fprintf(file, "%d\n", bEdicao);         //Edição do Livro
+    fprintf(file, "%d", bDepartamento);   //Departamento do Livro
+    fclose(file); //Fechamento do arquivo
 }
-*/
+
+void ListarLivros(void)
+{
+    int l;
+    char tmpBook[50];
+
+    for(l = 0; l < MAX_LIVROS; l++)
+    {
+        if (strcmp(Livros[l].nome, "InvalidBook") != 0)
+        {
+            printf("\n\n==================================================\n");
+            printf("\n\t Livro [ID %d]: %s", Livros[l].id, Livros[l].nome);
+            printf("\n\t Autor: %s", Livros[l].autor);
+            printf("\n\t Ano de Lançamento: %d", Livros[l].ano);
+            printf("\n\t Páginas: %d", Livros[l].paginas);
+            printf("\n\t Editora: %s", Livros[l].editora);
+            printf("\n\t Edição: %d", Livros[l].edicao);
+            TagBook(Livros[l].departamento, tmpBook);
+            printf("\n\t Departamento [%d]: %s ", Livros[l].departamento, tmpBook);
+        }
+    }
+}
+
+void CarregarLivros(void)
+{
+    char Susu[256], nome[25];
+
+    int i, x = 0;
+    char *token;
+
+    char tmpq[256];
+    char *temp[10];
+
+    for(i = 0; i < MAX_LIVROS; i++)
+    {
+        x = 0;
+
+        sprintf(nome, "Livros\\Livro_%d.txt", i);
+        
+        if(AbrirArquivo(nome, Susu))
+        {
+            token = strtok(Susu, "\n");
+            while( token != NULL )
+            {
+                sprintf(tmpq, "%s", token);
+                switch (x)
+                {
+                    case 0: //ID
+                        Livros[i].id = strtol(tmpq, temp, 10);
+                        break;
+                    case 1: //Nome
+                        strcpy(Livros[i].nome, tmpq);
+                        break;
+                    case 2: //Autor
+                        strcpy(Livros[i].autor, tmpq);
+                        break;
+                    case 3: //Ano de Lançamento
+                        Livros[i].ano = strtol(tmpq, temp, 10);
+                        break;
+                    case 4: //Número de páginas
+                        Livros[i].paginas = strtol(tmpq, temp, 10);
+                        break;
+                    case 5: //Editora
+                        strcpy(Livros[i].editora, tmpq);
+                        break;
+                    case 6: //Edição
+                        Livros[i].edicao = strtol(tmpq, temp, 10);
+                        break;
+                    case 7: //Departamento
+                        Livros[i].departamento = strtol(tmpq, temp, 10);
+                        break;
+                } //Fim do Switch
+                
+                token = strtok(NULL, "\n");
+                x++;
+            } // Fim do While
+            //printf("\n");
+            //printf("[%d] '%s' Carregado com sucesso. \n", i, Usuario[i].nome);
+        } //Fim do if
+        else
+        {
+            strcpy(Livros[i].nome, "InvalidBook");
+        }
+    } //Fim do for
+}
 
 void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin)
 {
     char str[256];
-    int ID_User = GetFreeUser();
+    int ID_User = GetFree(USER);
 
     FILE *file; //Criando variável para manipulação de arquivos
     sprintf(str, "Users\\User_%d.txt", ID_User);
@@ -1301,7 +1416,7 @@ void MensagemErro(char msg[256], int mID) //Modo de uso: MsgEx("mensagem", [id d
 void Msg(char msg[256])
 {
     printf ("\n\t <<ERRO>> %s\n", msg);
-    Sleep(1000);
+    Sleep(1500);
 }
 
 void Header(char title[128])
