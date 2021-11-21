@@ -97,9 +97,6 @@ int main(void)
         {
             case 0: //Tela Principal
 
-                //ListUsers();
-                //Sleep(10000);
-
                 if(Logado != -1) //Verificar se o usuário está logado
                 {
                     Tela_Principal(); //Exibição da Tela Principal
@@ -667,7 +664,8 @@ void tUsuario(int ID)
         case 2: //Pesquisar usuario
         {
             char FindName[128];
-            int i;
+            int i, nFound = 0, escolher_usuario;
+            int Encontrados[10] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
             while(1)
             {
@@ -678,7 +676,6 @@ void tUsuario(int ID)
                     Msg("Usuário inválido, tente novamente...");
                     continue;
                 }
-
 
                 printf("\n\tUsuário(s) encontrado(s):\n");
                 for(i = 0; i < MAX_USERS; i++)
@@ -691,15 +688,56 @@ void tUsuario(int ID)
                             || strstr(Usuario[i].endereco, FindName) != NULL
                             || strstr(Usuario[i].nomeusuario, FindName) != NULL)
                         {
-                            printf("\n\t\t  >> %s:", Usuario[i].nome);
-                            printf("\n\t\t\t Nome de usuário: %s", Usuario[i].nomeusuario);
-                            printf("\n\t\t\t Data de Nascimento: %d/%d/%d\n", Usuario[i].nascimento.dia, Usuario[i].nascimento.mes, Usuario[i].nascimento.ano);
+                            Encontrados[nFound] = i;
+                            printf("\n\t\t<<[%d]>> %s (%s)", nFound+1, Usuario[i].nome, Usuario[i].nomeusuario);
+                            nFound++;
                         }
                     }
+                } //Fim do for
+
+                if(nFound > 0)
+                {
+                    printf("\n\t\t<<[0]>> Sair");
+                    printf("\n\n\tInforme qual usuário quer ver as informações: ");
+                    scanf("%d", &escolher_usuario);
+
+                    if(escolher_usuario >= 1 && escolher_usuario <= nFound)
+                    {
+                        const int a = Encontrados[(escolher_usuario-1)];
+
+                        if(a >= 0)
+                        {
+                            Header("///          = = = = = = = = Pesquisar Usuário = = = = = = = = =          ///");
+
+                            printf("\n\tNome: %s", Usuario[a].nome);
+                            printf("\n\tCelular: %s", Usuario[a].celular);
+                            printf("\n\tCidade: %s", Usuario[a].cidade);
+                            printf("\n\tEndereço: %s", Usuario[a].endereco);
+                            printf("\n\tNome de Usuário: %s", Usuario[a].nomeusuario);
+
+                            Menu_id = 1;
+                            printf("\n\n\t\t\t>>> Tecle <ENTER> para voltar ao menu usuário...\n");
+                            getchar();
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        Menu_id = 0;
+                        printf("\n\tVoltando ao menu inicial...\n");
+                        Sleep(1500);
+                        break;
+                    }
                 }
-                Sleep(10000);
+                else
+                {
+                    printf("\n\t[ERRO]: Nenhum usuário encontrado.\n");
+                    Sleep(1500);
+                    continue;
+                }
+
                 break;
-            }
+            } //Fim do  While
         }
         break;
 
