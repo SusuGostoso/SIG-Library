@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include <time.h>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -59,16 +60,26 @@ void RegistrarLivro(char bNome[128], char bAutor[128], int bAno, int bPaginas, c
 void CarregarLivros(void);
 void ListarLivros(void);
 
+//Funções Livros-Alugados
+void AlugarLivro(char usuario[32], int id_livro, int valorpago, int dia, int mes, int ano, int hora, int minuto, int prazo);
+void ListarAlugados(void);
+void CarregarAlugados(void);
+int GetBookByID(int id);
+
 //Variáveis púlicas
 int Menu_id = 0;
-int Logado = 0; //Verificar se o usuário fez login
+int Logado = -1; //Verificar se o usuário fez login
 int Staff = 0; //Verficiar se o usuário é um administrador
+struct tm *agora; //ponteiro para struct que armazena data e hora
+time_t segundos; //variável do tipo time_t para armazenar o tempo em segundos
 
 //usuários fictícios
-#define MAX_USERS 10
+#define MAX_USERS 25
 #define MAX_LIVROS 50
 #define BOOK 60001
 #define USER 60002
+#define ALUGADO 60003
+#define DINHEIRO_PADRAO 50
 
 struct user_data_nascimento {
     int dia, mes, ano;
@@ -83,6 +94,7 @@ struct user_estrutura
     char nomeusuario[32];
     char senha[128];
     int admin;
+    int dinheiro;
     struct user_data_nascimento nascimento;
 }
 Usuario[MAX_USERS];
@@ -97,15 +109,39 @@ struct iBook
     char editora[128];
     int edicao;
     int departamento;
-}Livros[MAX_LIVROS];
+}
+Livros[MAX_LIVROS];
+
+struct aLivros
+{
+    char usuario[32];
+    int idlivro;
+    int valorpago;
+    int dia;
+    int mes;
+    int ano;
+    int hora;
+    int minuto;
+    int prazo; //em dias
+}
+Alugados[MAX_LIVROS];
+
+struct sGeral
+{
+    int alugados;
+    int livros;
+    int usuarios;
+};
+struct sGeral geral;
 
 // Programa principal
 int main(void)
 {
     setlocale(LC_ALL, "Portuguese");
-    
+
     CarregarUsuarios(); //Carregar Usuários
     CarregarLivros(); //Carregar Livros
+    CarregarAlugados(); //Carregar Livros Alugados
 
     if(Logado != -1) {
         Staff = Usuario[Logado].admin;
@@ -274,8 +310,8 @@ void tLogin(int ID)
                     printf("\n\t Endereço: %s", Usuario[Logado].endereco);
                     printf("\n\t Nome de Usuário: %s", Usuario[Logado].nomeusuario);
                     printf("\n\t Data de Nascimento: %d/%d/%d", Usuario[Logado].nascimento.dia, Usuario[Logado].nascimento.mes, Usuario[Logado].nascimento.ano);
-                    printf("\n\t Admin: %d", Usuario[Logado].admin);
-                    
+                    printf("\n\t Dinheiro: R$ %d", Usuario[Logado].dinheiro);
+
                     Staff = Usuario[Logado].admin;
 
                     Sleep(500);
@@ -405,10 +441,71 @@ void tLivros(int ID)
     switch (ID) //Livros
     {
         case 1: //Alugar
-        
-            Header("///          = = = = = = = = =  Alugar  Livro  = = = = = = = = =          ///");
-            MsgEx("Função ainda em desenvolvimento...", 2);
-        
+        {
+            int aEtapa = 1, aLivroID, aPrazo;
+
+            while(1)
+            {
+                Header("///          = = = = = = = = =  Alugar  Livro  = = = = = = = = =          ///");
+
+                if(aEtapa == 1)
+                {
+                    printf("Informe o ID do livro: ");
+                    if((scanf("%d", &aLivroID) != 1)) {
+                        Msg("ID inválido, tente novamente...");
+                        continue;
+                    }
+                    aEtapa++;
+                }
+                else if(aEtapa == 2)
+                {
+                    
+
+                    printf("\n\t\t [1]\t5 dias\n");
+                    printf("\t\t [2]\t10 dias\n");
+                    printf("\t\t [3]\t15 dias\n\n");
+                    printf("\t\t [0]\tCancelar\n\n");
+
+                    printf("Informe o prazo do aluguel: ");
+
+                    if((scanf("%d", &aPrazo) != 1)) {
+                        Msg("ID inválido, tente novamente...");
+                        continue;
+                    }
+
+                    if(aPrazo >= 1 && aPrazo <= 3)
+                    {
+                        aPrazo *= 5;
+                    }
+                    else if(aPrazo == 0) //Sair 
+                    {
+                        Menu_id = 2;
+                        break;
+                    }
+                    else //Erro
+                    {
+                        Msg("ID inválido, tente novamente...");
+                        continue;
+                    }
+
+                    aEtapa++;
+                }
+                else if(aEtapa == 3)
+                {
+                    time(&segundos);
+                    agora = localtime(&segundos);
+
+                    float preco = (Livros[aLivroID-100].paginas * 0.05);
+
+                    AlugarLivro(Usuario[Logado].nomeusuario, aLivroID, (int)preco, agora->tm_mday, agora->tm_mon+1, agora->tm_year+1900, agora->tm_hour, agora->tm_min, aPrazo);
+
+                    printf("\nLivro Alugado com sucesso. \n");
+                    Menu_id = 0;
+                    Sleep(2500);
+                    break;
+                }
+            }
+        }
         break;
 
         case 2: //Pesquisar
@@ -571,118 +668,136 @@ void tUsuario(int ID)
     switch (ID)
     {
         case 1: //Cadastrar um novo usuario 
-            
-            while(1)
+
+            if(Staff != 0) //Se for administrador: registra um novo usuário
             {
-                Clear();
-                Header("///          = = = = = = = =  Cadastrar Usuário  = = = = = = = =          ///");
-
-                if(etapa == 1) //Nome e Sobrenome
+                while(1)
                 {
-                    printf("\tInforme seu nome: ");
-                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", nome) != 1) {
-                        Msg("Nome inválido, tente novamente...");
-                        continue;
-                    }
-                    etapa++;
-                }
-                else if(etapa == 2) //Data de Nascimento
-                {
-                    printf("\n\tOlá, %s.\n\n", nome);
+                    Header("///          = = = = = = = =  Cadastrar Usuário  = = = = = = = =          ///");
 
-                    printf("\tInforme sua data de nascimento (Exemplo: 17/09/1997): ");
-                    scanf("%d/%d/%d", &dd, &mm, &yy);
-
-                    if((ValidarData(dd, mm, yy) == 0))
+                    if(etapa == 1) //Nome e Sobrenome
                     {
-                        Msg("Data inválida, tente novamente...");
-                        continue;
+                        printf("\tInforme seu nome: ");
+                        if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", nome) != 1) {
+                            Msg("Nome inválido, tente novamente...");
+                            continue;
+                        }
+                        etapa++;
                     }
-                    etapa++;
-                }
-                else if(etapa == 3) //Número de celular (apenas numeros)
-                {
-                    printf("\n\tOlá, %s.\n\n", nome);
+                    else if(etapa == 2) //Data de Nascimento
+                    {
+                        printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("\tInforme seu número de celular (somente números): ");
-                    if((scanf("%[0-9]", cel) != 1) || (strlen(cel) != 11)) {
-                        Msg("Número de celular inválido, tente novamente...");
-                        continue;
-                    }
-                    etapa++;
-                }
-                else if(etapa == 4) //Cidade
-                {
-                    printf("\n\tOlá, %s.\n\n", nome);
+                        printf("\tInforme sua data de nascimento (Exemplo: 17/09/1997): ");
+                        scanf("%d/%d/%d", &dd, &mm, &yy);
 
-                    printf("\tInforme a cidade que você reside: ");
-                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", city) != 1) {
-                        Msg("Cidade inválida, tente novamente...");
-                        continue;
+                        if((ValidarData(dd, mm, yy) == 0))
+                        {
+                            Msg("Data inválida, tente novamente...");
+                            continue;
+                        }
+                        etapa++;
                     }
-                    etapa++;
-                }
-                else if(etapa == 5) //Endereço
-                {
-                    printf("\n\tOlá, %s.\n\n", nome);
+                    else if(etapa == 3) //Número de celular (apenas numeros)
+                    {
+                        printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("\tInforme seu endereço: ");
-                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ.,0-9]", end) != 1) {
-                        Msg("Endereço inválido, tente novamente...");
-                        continue;
+                        printf("\tInforme seu número de celular (somente números): ");
+                        if((scanf("%[0-9]", cel) != 1) || (strlen(cel) != 11)) {
+                            Msg("Número de celular inválido, tente novamente...");
+                            continue;
+                        }
+                        etapa++;
                     }
-                    etapa++;
-                }
-                else if(etapa == 6) //Usuário
-                {
-                    printf("\n\tOlá, %s.\n\n", nome);
+                    else if(etapa == 4) //Cidade
+                    {
+                        printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("\tInforme o seu nome de usuário (exemplo: Susu_Gostoso): ");
-                    if(scanf("%[A-Za-z_]", username) != 1) {
-                        Msg("Usuário inválido, utilize somente letras.");
-                        continue;
+                        printf("\tInforme a cidade que você reside: ");
+                        if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", city) != 1) {
+                            Msg("Cidade inválida, tente novamente...");
+                            continue;
+                        }
+                        etapa++;
                     }
-                    etapa++;
-                }
-                else if(etapa == 7) //Senha
-                {
-                    printf("\n\tOlá, %s.\n\n", nome);
+                    else if(etapa == 5) //Endereço
+                    {
+                        printf("\n\tOlá, %s.\n\n", nome);
 
-                    printf("\tInforme sua senha: ");
-                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ.,@#$()0-9]", password) != 1) {
-                        Msg("Senha inválida, por favor tente novamente.");
-                        continue;
+                        printf("\tInforme seu endereço: ");
+                        if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ.,0-9]", end) != 1) {
+                            Msg("Endereço inválido, tente novamente...");
+                            continue;
+                        }
+                        etapa++;
                     }
-                    break;
+                    else if(etapa == 6) //Usuário
+                    {
+                        printf("\n\tOlá, %s.\n\n", nome);
+
+                        printf("\tInforme o seu nome de usuário (exemplo: Susu_Gostoso): ");
+                        if(scanf("%[A-Za-z_]", username) != 1) {
+                            Msg("Usuário inválido, utilize somente letras.");
+                            continue;
+                        }
+                        etapa++;
+                    }
+                    else if(etapa == 7) //Senha
+                    {
+                        printf("\n\tOlá, %s.\n\n", nome);
+
+                        printf("\tInforme sua senha: ");
+                        if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ.,@#$()0-9]", password) != 1) {
+                            Msg("Senha inválida, por favor tente novamente.");
+                            continue;
+                        }
+                        break;
+                    }
+                }
+
+                //Resumo das informações
+                Clear();
+                printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=[ Informações gerais ]=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+                printf("\n\tNome: %s\n", nome);
+                printf("\n\tData de Nascimento: %d/%d/%d\n", dd, mm, yy);
+                printf("\n\tCelular: %s\n", cel);
+                printf("\n\tCidade: %s\n", city);
+                printf("\n\tEndereço: %s\n", end);
+                printf("\n\tNome de usuário: %s\n", username);
+                printf("\n\tSenha: %s\n", password);
+                printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+
+                int z;
+                printf("\nAs informações estão corretas? (1=SIM | 2=NÃO): ");
+                scanf("%d", &z);
+
+                if(z != 1) { //Caso o usuário escolha que as informações estão incorretas, ele retorna a primeira etapa.
+                    tUsuario(1);
+                }
+                else {
+
+                    RegistrarUsuario(nome, cel, city, end, username, password, dd, mm, yy, 0);
+
+                    Menu_id = 0;
+                    printf("\n\t[INFO] Usuário cadastrado com sucesso, retornando ao menu inicial...\n");
+                    Sleep(1500);
                 }
             }
+            else //Se for usuário comum, apenas ver os dados.
+            {
+                Header("///          = = = = = = = = Minhas  Informações = = = = = = = =          ///");
 
-            //Resumo das informações
-            Clear();
-            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=[ Informações gerais ]=-=-=-=-=-=-=-=-=-=-=-=-=\n");
-            printf("\n\tNome: %s\n", nome);
-            printf("\n\tData de Nascimento: %d/%d/%d\n", dd, mm, yy);
-            printf("\n\tCelular: %s\n", cel);
-            printf("\n\tCidade: %s\n", city);
-            printf("\n\tEndereço: %s\n", end);
-            printf("\n\tNome de usuário: %s\n", username);
-            printf("\n\tSenha: %s\n", password);
-            printf("\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+                printf("\n\tNome: %s", Usuario[Logado].nome);
+                printf("\n\tCelular: %s", Usuario[Logado].celular);
+                printf("\n\tCidade: %s", Usuario[Logado].cidade);
+                printf("\n\tEndereço: %s", Usuario[Logado].endereco);
+                printf("\n\tNome de Usuário: %s", Usuario[Logado].nomeusuario);
+                printf("\n\tData de Nascimento: %d/%d/%d", Usuario[Logado].nascimento.dia, Usuario[Logado].nascimento.mes, Usuario[Logado].nascimento.ano);
+                printf("\n\tDinheiro: %d", Usuario[Logado].dinheiro);
 
-            int z;
-            printf("\nAs informações estão corretas? (1=SIM | 2=NÃO): ");
-            scanf("%d", &z);
-
-            if(z != 1) { //Caso o usuário escolha que as informações estão incorretas, ele retorna a primeira etapa.
-                tUsuario(1);
-            }
-            else {
-
-                RegistrarUsuario(nome, cel, city, end, username, password, dd, mm, yy, 0);
-
-                Menu_id = 0;
-                printf("\n\t[INFO] Usuário cadastrado com sucesso, retornando ao menu inicial...\n");
-                Sleep(1500);
+                Menu_id = 1;
+                printf("\n\n\t\t\t>>> Tecle <ENTER> para voltar ao menu usuário...\n");
+                getchar();
             }
 
         break;
@@ -839,20 +954,28 @@ void tUsuario(int ID)
     }
 }
 
-//Livros\\Livro
-//Users\\User
-
 int GetFree(int prefixo)
 {
     int i = 0;
-    char nome[20];
+    char nome[35];
 
     while (1)
     {
         FILE *file;
-        if(prefixo == BOOK) sprintf(nome, "Livros\\Livro_%d.txt", i);
-        else sprintf(nome, "Users\\User_%d.txt", i);
-        
+
+        if(prefixo == BOOK)
+        {
+            sprintf(nome, "Livros\\Livro_%d.txt", i);
+        }
+        else if (prefixo == USER)
+        {
+            sprintf(nome, "Users\\User_%d.txt", i);
+        }
+        else if(prefixo == ALUGADO)
+        {
+            sprintf(nome, "Livros\\Alugado_%d.txt", i);
+        }
+
         file = fopen(nome, "r");
 
         if((file != NULL)) {
@@ -890,10 +1013,14 @@ void ListarLivros(void)
     int l;
     char tmpBook[50];
 
+    float preco;
+
     for(l = 0; l < MAX_LIVROS; l++)
     {
         if (strcmp(Livros[l].nome, "InvalidBook") != 0)
         {
+            preco = (Livros[l].paginas * 0.05);
+
             printf("\n\n==================================================\n");
             printf("\n\t Livro [ID %d]: %s", Livros[l].id, Livros[l].nome);
             printf("\n\t Autor: %s", Livros[l].autor);
@@ -903,8 +1030,101 @@ void ListarLivros(void)
             printf("\n\t Edição: %d", Livros[l].edicao);
             TagBook(Livros[l].departamento, tmpBook);
             printf("\n\t Departamento [%d]: %s ", Livros[l].departamento, tmpBook);
+            printf("\n\t Preço: R$ %d", (int)preco);
         }
     }
+}
+
+//Listar livros alugados
+void ListarAlugados(void)
+{
+    int l;
+
+    for(l = 0; l < MAX_LIVROS; l++)
+    {
+        if (strcmp(Alugados[l].usuario, "InvalidBook") != 0)
+        {
+            printf("\n\n==================================================\n");
+            if (strcmp(Alugados[l].usuario, Usuario[Logado].nomeusuario) == 0)
+            {
+                printf("\n\t Usuário: %s [VOCÊ]", Alugados[l].usuario);
+            }
+            else
+            {
+                printf("\n\t Usuário: %s", Alugados[l].usuario);
+            }
+            printf("\n\t Livro [ID %d]: %s", Alugados[l].idlivro, Livros[GetBookByID(Alugados[l].idlivro)].nome);
+            printf("\n\t Preço do Aluguel: R$ %d", Alugados[l].valorpago);
+            printf("\n\t Prazo do Aluguel: %d dias", Alugados[l].prazo);
+            printf("\n\t Data/Hora do Aluguel: %d/%d/%d %d:%d", Alugados[l].dia, Alugados[l].mes, Alugados[l].ano, Alugados[l].hora, Alugados[l].minuto);
+        }
+    }
+}
+
+
+int GetBookByID(int id) {
+    return ((int)id-100);
+}
+
+void CarregarAlugados(void)
+{
+    char Susu[256], nome[25], tmpq[256], *temp[10], *token;
+    int i, x = 0;
+
+    for(i = 0; i < MAX_LIVROS; i++)
+    {
+        x = 0;
+
+        sprintf(nome, "Livros\\Alugado_%d.txt", i);
+        
+        if(AbrirArquivo(nome, Susu))
+        {
+            token = strtok(Susu, "\n");
+            while( token != NULL )
+            {
+                sprintf(tmpq, "%s", token);
+                switch (x)
+                {
+                    case 0: //Usuário que alugou
+                        strcpy(Alugados[i].usuario, tmpq);
+                        break;
+                    case 1: //ID do Livro Alugado
+                        Alugados[i].idlivro = strtol(tmpq, temp, 10);
+                        break;
+                    case 2: //Valor pago
+                        Alugados[i].valorpago = strtol(tmpq, temp, 10);
+                        break;
+                    case 3: //Dia do aluguel
+                        Alugados[i].dia = strtol(tmpq, temp, 10);
+                        break;
+                    case 4: //Mês do aluguel
+                        Alugados[i].mes = strtol(tmpq, temp, 10);
+                        break;
+                    case 5: //Ano do aluguel
+                        Alugados[i].ano = strtol(tmpq, temp, 10);
+                        break;
+                    case 6: //Hora do aluguel
+                        Alugados[i].hora = strtol(tmpq, temp, 10);
+                        break;
+                    case 7: //Minuto do aluguel
+                        Alugados[i].minuto = strtol(tmpq, temp, 10);
+                        break;
+                    case 8: //Prazo em dias do aluguel
+                        Alugados[i].prazo = strtol(tmpq, temp, 10);
+                        break;
+                } //Fim do Switch
+                
+                token = strtok(NULL, "\n");
+                x++;
+            } // Fim do While
+
+            geral.alugados++;
+        } //Fim do if
+        else
+        {
+            strcpy(Alugados[i].usuario, "InvalidBook");
+        }
+    } //Fim do for
 }
 
 void CarregarLivros(void)
@@ -962,6 +1182,8 @@ void CarregarLivros(void)
             } // Fim do While
             //printf("\n");
             //printf("[%d] '%s' Carregado com sucesso. \n", i, Usuario[i].nome);
+        
+            geral.livros++;
         } //Fim do if
         else
         {
@@ -969,6 +1191,29 @@ void CarregarLivros(void)
         }
     } //Fim do for
 }
+
+void AlugarLivro(char usuario[32], int id_livro, int valorpago, int dia, int mes, int ano, int hora, int minuto, int prazo)
+{
+    char str[256];
+    int ID_lAlugar = GetFree(ALUGADO);
+
+    FILE *file; //Criando variável para manipulação de arquivos
+    sprintf(str, "Livros\\Alugado_%d.txt", ID_lAlugar);
+    file = fopen(str, "w"); //Abrindo o arquivo
+
+    fprintf(file, "%s\n", usuario); //Usuário que alugou o livro
+    fprintf(file, "%d\n", id_livro); //ID do Livro Alugado
+    fprintf(file, "%d\n", valorpago); //Valor pago pelo livro
+    fprintf(file, "%d\n", dia); //Dia de Aluguel
+    fprintf(file, "%d\n", mes); //Mês de Aluguel
+    fprintf(file, "%d\n", ano); //Ano de Aluguel
+    fprintf(file, "%d\n", hora); //Hora de Aluguel
+    fprintf(file, "%d\n", minuto); //Minuto de Aluguel
+    fprintf(file, "%d", prazo); //Prazo do Aluguel
+
+    fclose(file); //Fechamento do arquivo
+}
+
 
 void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin)
 {
@@ -988,7 +1233,8 @@ void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uE
     fprintf(file, "%d\n", uDiaNasc); //Dia de Nascimento
     fprintf(file, "%d\n", uMesNasc); //Mês de Nascimento
     fprintf(file, "%d\n", uAnoNasc); //Ano de Nascimento
-    fprintf(file, "%d", uAdmin); //Ano de Nascimento
+    fprintf(file, "%d\n", uAdmin); //Ano de Nascimento
+    fprintf(file, "%d", DINHEIRO_PADRAO); //Dinheiro
     fclose(file); //Fechamento do arquivo
     //printf("Usuário ID %d (%s): cadastrado com sucesso.\n", ID_User, uNome);
     //Menu_id = 2;
@@ -1088,6 +1334,9 @@ void CarregarUsuarios(void)
                     case 9: 
                         Usuario[i].admin = strtol(tmpq, temp, 10);
                         break;
+                    case 10:
+                        Usuario[i].dinheiro = strtol(tmpq, temp, 10);
+                        break;
                 } //Fim do Switch
                 
                 token = strtok(NULL, "\n");
@@ -1095,6 +1344,8 @@ void CarregarUsuarios(void)
             } // Fim do While
             //printf("\n");
             //printf("[%d] '%s' Carregado com sucesso. \n", i, Usuario[i].nome);
+
+            geral.usuarios++;
         } //Fim do if
         else
         {
@@ -1142,6 +1393,7 @@ void ListUsers(void)
             printf("\n\t Nome de Usuário: %s", Usuario[l].nomeusuario);
             printf("\n\t Senha: %s", Usuario[l].senha);
             printf("\n\t Admin: %d", Usuario[l].admin);
+            printf("\n\t Dinheiro: R$ %d", Usuario[l].dinheiro);
             printf("\n\t Data de Nascimento: %d/%d/%d", Usuario[l].nascimento.dia, Usuario[l].nascimento.mes, Usuario[l].nascimento.ano);
         }
     }
@@ -1181,19 +1433,17 @@ void Tela_Sobre(void)
 
 void Tela_Principal(void) {
     Clear();
-    
-    if(Staff != 0) {
-        printf("\tBem vindo, administrador %s.\n", Usuario[Logado].nome);
-    }
-    else {
-        printf("\tBem vindo, %s.\n", Usuario[Logado].nome);
-    }
-    
-    printf("\n");
+    time(&segundos);
+    agora = localtime(&segundos);
+
+    int idade = (agora->tm_year+1900)-Usuario[Logado].nascimento.ano;
+
+    char* diasemana[7] = {"Domingo", "Segunda Feira", "Terça Feira", "Quarta Feira", "Quinta Feira", "Sexta Feira", "Sábado"};
+
     printf("///////////////////////////////////////////////////////////////////////////////\n");
-    printf("///                                                                         ///\n");
-    printf("///             Universidade Federal do Rio Grande do Norte                 ///\n");
-    printf("///                 Centro de Ensino Superior do Seridó                     ///\n");
+    printf("///                                                                         /// %d Usuários carregados. \n", geral.usuarios);
+    printf("///             Universidade Federal do Rio Grande do Norte                 /// %d Livros carregados. \n", geral.livros);
+    printf("///                 Centro de Ensino Superior do Seridó                     /// %d Livros alugados. \n", geral.alugados);
     printf("///               Departamento de Computação e Tecnologia                   ///\n");
     printf("///                  Disciplina DCT1106 -- Programação                      ///\n");
     printf("///                  Projeto de Controle de Biblioteca                      ///\n");
@@ -1205,12 +1455,12 @@ void Tela_Principal(void) {
     printf("///        = = = = = Projeto de Controle de Biblioteca = = = = =            ///\n");
     printf("///                             SIG-Library                                 ///\n");
     printf("///                                                                         ///\n");
-    printf("///            1. Módulo Usuario                                            ///\n");
-    printf("///            2. Módulo Livros                                             ///\n");
-    printf("///            3. Módulo Sobre                                              ///\n");
-    printf("///            4. Módulo Creditos                                           ///\n");
-    //printf("///            5. Módulo Staff                                              ///\n"); 
-    printf("///            0. Sair                                                      ///\n");
+    printf("///                                                 ///////////////////////////\n");
+    printf("///            [1] Módulo Usuario                   /// %s (%d anos) \n", Usuario[Logado].nome, idade);
+    printf("///            [2] Módulo Livros                    /// %d/%d/%d %d:%d [%s] \n", agora->tm_mday, agora->tm_mon+1, agora->tm_year+1900, agora->tm_hour, agora->tm_min, diasemana[agora->tm_wday]);
+    printf("///            [3] Módulo Sobre                     /// Dinheiro: R$ %d\n", Usuario[Logado].dinheiro);
+    printf("///            [4] Módulo Creditos                  ///////////////////////////\n");
+    printf("///            [0] Sair                                                     ///\n");
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
     printf("\n");
@@ -1262,10 +1512,22 @@ void Tela_Menu_Usuario(void) {
     printf("///           = = = = = = = =  Menu  Usuario  = = = = = = = =             ///\n");
     printf("///           = = = = = = = = = = = = = = = = = = = = = = = =             ///\n");
     printf("///                                                                       ///\n");
-    printf("///           1. Cadastrar um novo usuario                                ///\n");
-    printf("///           2. Pesquisar os dados de um usuario                         ///\n");
-    printf("///           3. Atualizar o cadastro de um usuario                       ///\n");
-    printf("///           4. Excluir um usuario do sistema                            ///\n");
+
+
+    if(Staff != 0) //Se for administrador
+    { 
+        printf("///           1. Cadastrar um novo usuario                                ///\n");
+        printf("///           2. Pesquisar os dados de um usuario                         ///\n");
+        printf("///           3. Atualizar o cadastro de um usuario                       ///\n");
+        printf("///           4. Excluir um usuario do sistema                            ///\n");
+    }
+    else //Se não for administrador
+    {
+        printf("///           1. Meus dados                                               ///\n");
+        printf("///           2. Pesquisar os dados de um usuario                         ///\n");
+        printf("///           3. Atualizar meus dados                                     ///\n");
+        printf("///           4. Excluir minha conta                                      ///\n");
+    }
     printf("///           0. Voltar ao menu principal                                 ///\n");
     printf("///                                                                       ///\n");
     printf("///                                                                       ///\n");
@@ -1332,11 +1594,16 @@ void Tela_Menu_Livro(void) {
     printf("///                                                                       ///\n");
     printf("///           1. Alugar Livro                                             ///\n");
     printf("///           2. Pesquisar Livro                                          ///\n");
-    if(Staff != 0)
+    if(Staff != 0) //Se for admin
     {
         printf("///           3. Cadastrar Livro                                          ///\n");
         printf("///           4. Excluir Livro                                            ///\n");
         printf("///           5. Alterar Livro                                            ///\n");
+    }
+    else //Se for usuário
+    {
+        printf("///           3. Meus livros alugados                                     ///\n");
+        printf("///           4. Entregar Livro                                           ///\n");
     }
     printf("///           0. Voltar ao menu principal                                 ///\n");
     printf("///                                                                       ///\n");
