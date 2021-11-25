@@ -45,20 +45,23 @@ void Msg(char msg[256]);
 void Escolha_Usuario(int max_opcoes, int incremento);
 void Header(char title[128]);
 int ValidarData(int dd, int mm, int yy);
-void TagBook(int IDTag, char* StrX);
+int Exists(int codigo, char info[50], int arquivo_variavel); //Função retorna se existe um usuário (info: nome de usuário) ou livro (info: id do livro)
 
 //Funções de Usuário
 void ListUsers(void);
 int GetFree(int prefixo); //BOOK ou USER (para livros e usuários)
-void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin);
+void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin, int uDinheiro);
 int AbrirArquivo(char Arquivo[40], char* StrF);
 void CarregarUsuarios(void);
 int ExcluirUsuario(char username[128]);
+int UserExists(char username[50]);
+int AlterarUsuario(char username[32], char alternativa[128], char texto[256]);
 
 //Funções Livros
 void RegistrarLivro(char bNome[128], char bAutor[128], int bAno, int bPaginas, char bEditora[128], int bEdicao, int bDepartamento);
 void CarregarLivros(void);
 void ListarLivros(void);
+void TagBook(int IDTag, char* StrX);
 
 //Funções Livros-Alugados
 void AlugarLivro(char usuario[32], int id_livro, int valorpago, int dia, int mes, int ano, int hora, int minuto, int prazo);
@@ -332,9 +335,9 @@ void tLogin(int ID)
         break;
 
         case 2: //Cadastra
-
+        {
             tUsuario(1);
-        
+        }
         break;
 
         case 3: //Esqueci a senha
@@ -459,8 +462,6 @@ void tLivros(int ID)
                 }
                 else if(aEtapa == 2)
                 {
-                    
-
                     printf("\n\t\t [1]\t5 dias\n");
                     printf("\t\t [2]\t10 dias\n");
                     printf("\t\t [3]\t15 dias\n\n");
@@ -669,7 +670,7 @@ void tUsuario(int ID)
     {
         case 1: //Cadastrar um novo usuario 
 
-            if(Staff != 0) //Se for administrador: registra um novo usuário
+            if(Staff != 0 || Logado == -1) //Se for administrador: registra um novo usuário
             {
                 while(1)
                 {
@@ -776,7 +777,7 @@ void tUsuario(int ID)
                 }
                 else {
 
-                    RegistrarUsuario(nome, cel, city, end, username, password, dd, mm, yy, 0);
+                    RegistrarUsuario(nome, cel, city, end, username, password, dd, mm, yy, 0, DINHEIRO_PADRAO);
 
                     Menu_id = 0;
                     printf("\n\t[INFO] Usuário cadastrado com sucesso, retornando ao menu inicial...\n");
@@ -883,10 +884,265 @@ void tUsuario(int ID)
         break;
 
         case 3: //Atualizar o cadastro de um usuario 
-        
-            Header("///          = = = = = = Atualizar Dados de Usuário  = = = = = =          ///");
-            MsgEx("Função ainda em desenvolvimento...", 1);
-        
+        {
+            char Alt_nome[128], Alt_celular[12], Alt_cidade[128], Alt_endereco[128], Alt_usuario[32], Alt_senha[128], Alt_help[20];
+            int etp = 0, Alt_dia, Alt_mes, Alt_ano, Alt_admin, Alt_dinheiro, id, max_opcoes;
+
+            while(1)
+            {
+                Header("///          = = = = = = Atualizar Dados de Usuário  = = = = = =          ///");
+
+                if(etp == 0) //Etapa 0: Escolher qual dado alterar
+                {
+                    if(Staff != 0) //Se for admin
+                    {
+                        printf("\tInforme o nome de usuário da conta que deseja alterar: ");
+                        if(scanf("%[A-Za-z_]", Alt_usuario) != 1) {
+                            Msg("Usuário inválido, utilize somente letras.");
+                            continue;
+                        }
+
+                        id = Exists(USER, Alt_usuario, 1);
+
+                        if(id == -1)
+                        {
+                            Msg("Usuário não existe, tente novamente.");
+                            continue;
+                        }
+
+                        max_opcoes = 9;
+                    }
+                    else //Se for usuário comum
+                    {  
+                        id = Logado;
+                        max_opcoes = 7;
+                    }
+
+                    printf("\n\t [1] Nome (%s)", Usuario[id].nome);
+                    printf("\n\t [2] Celular (%s)", Usuario[id].celular);
+                    printf("\n\t [3] Cidade (%s)", Usuario[id].cidade);
+                    printf("\n\t [4] Endereço (%s)", Usuario[id].endereco);
+                    printf("\n\t [5] Nome de Usuário (%s)", Usuario[id].nomeusuario);
+                    printf("\n\t [6] Data de Nascimento (%d/%d/%d)", Usuario[id].nascimento.dia, Usuario[id].nascimento.mes, Usuario[id].nascimento.ano);
+                    printf("\n\t [7] Senha");
+
+                    if(Staff != 0) //Se for admin
+                    {
+                        printf("\n\t [8] Nível de admin (%d)", Usuario[id].admin);
+                        printf("\n\t [9] Dinheiro (%d)", Usuario[id].dinheiro);
+                    }
+
+                    printf("\n\n\t [0] Cancelar\n\n");
+
+                    printf("\tInforme qual informação deseja alterar [1-%d]: ", max_opcoes);
+                    if(scanf("%d", &etp) != 1) {
+                        etp = 0;
+                        Msg("Informação inválida, por favor tente novamente.");
+                        continue;
+                    }
+
+                    if(etp < 0 || etp > max_opcoes)
+                    {
+                        etp = 0;
+                        Msg("Informação inválida, por favor tente novamente.");
+                        continue;
+                    }
+                    else if(etp == 0)
+                    {
+                        Menu_id = 1;
+                        break;
+                    }
+                    continue;
+                }
+                else if(etp == 1) //Etapa 1: Alterar nome
+                {
+                    printf("\t Informe seu nome: ");
+
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", Alt_nome) != 1) {
+                        Msg("Nome inválido, tente novamente...");
+                        continue;
+                    }
+
+                    if(AlterarUsuario(Usuario[id].nomeusuario, "nome", Alt_nome) == 1)
+                    {
+                        printf("\n\tNome alterado com sucesso.\n");
+                        Sleep(2000);
+                        etp = 0;
+                    }
+                    else {
+                        Msg("Ocorreu algum erro ao alterar, por favor tente novamente.");
+                        continue;
+                    }
+                }
+                else if(etp == 2) //Etapa 2: Alterar celular
+                {
+                    printf("\tInforme seu número de celular (somente números): ");
+                    if((scanf("%[0-9]", Alt_celular) != 1) || (strlen(Alt_celular) != 11)) {
+                        Msg("Número de celular inválido, tente novamente...");
+                        continue;
+                    }
+
+                    if(AlterarUsuario(Usuario[id].nomeusuario, "celular", Alt_celular) == 1)
+                    {
+                        printf("\n\t [INFO] Celular alterado com sucesso.\n");
+                        Sleep(2000);
+                        etp = 0;
+                    }
+                    else {
+                        Msg("Ocorreu algum erro ao alterar, por favor tente novamente.");
+                        continue;
+                    }
+                }
+                else if(etp == 3) //Etapa 3: Alterar cidade
+                {
+                    printf("\tInforme a cidade que você reside: ");
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ]", Alt_cidade) != 1) {
+                        Msg("Cidade inválida, tente novamente...");
+                        continue;
+                    }
+
+                    if(AlterarUsuario(Usuario[id].nomeusuario, "cidade", Alt_cidade) == 1)
+                    {
+                        printf("\n\t [INFO] Cidade alterada com sucesso.\n");
+                        Sleep(2000);
+                        etp = 0;
+                    }
+                    else {
+                        Msg("Ocorreu algum erro ao alterar, por favor tente novamente.");
+                        continue;
+                    }
+                }
+                else if(etp == 4) //Etapa 4: Alterar Endereço
+                {
+                    printf("\tInforme seu endereço: ");
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ.,0-9]", Alt_endereco) != 1) {
+                        Msg("Endereço inválido, tente novamente...");
+                        continue;
+                    }
+
+                    if(AlterarUsuario(Usuario[id].nomeusuario, "endereco", Alt_endereco) == 1)
+                    {
+                        printf("\n\t [INFO] Endereço alterado com sucesso.\n");
+                        Sleep(2000);
+                        etp = 0;
+                    }
+                    else {
+                        Msg("Ocorreu algum erro ao alterar, por favor tente novamente.");
+                        continue;
+                    }
+                }
+                else if(etp == 5) //Etapa 5: Nome de usuário
+                {
+                    printf("\tInforme o seu nome de usuário (exemplo: Susu_Gostoso): ");
+                    if(scanf("%[A-Za-z_]", Alt_usuario) != 1) {
+                        Msg("Usuário inválido, utilize somente letras.");
+                        continue;
+                    }
+
+                    if(AlterarUsuario(Usuario[id].nomeusuario, "nomeusuario", Alt_usuario) == 1)
+                    {
+                        printf("\n\t\t [INFO] Nome de usuário alterado com sucesso!\n");
+                        Sleep(2000);
+                        etp = 0;
+                    }
+                    else {
+                        Msg("Ocorreu algum erro ao alterar, por favor tente novamente.");
+                        continue;
+                    }
+                }
+                else if(etp == 6) //Etapa 6: Data de Nascimento
+                {
+                    printf("\tInforme sua data de nascimento (Exemplo: 17/09/1997): ");
+                    scanf("%d/%d/%d", &Alt_dia, &Alt_mes, &Alt_ano);
+
+                    if((ValidarData(Alt_dia, Alt_mes, Alt_ano) == 0))
+                    {
+                        Msg("Data inválida, tente novamente...");
+                        continue;
+                    }
+
+                    sprintf(Alt_help, "%d/%d/%d", Alt_dia, Alt_mes, Alt_ano);
+                    if(AlterarUsuario(Usuario[id].nomeusuario, "nascimento", Alt_help) == 1)
+                    {
+                        printf("\n\t\t [INFO] Data de nascimento alterada com sucesso!\n");
+                        Sleep(2000);
+                        etp = 0;
+                    }
+                    else {
+                        Msg("Ocorreu algum erro ao alterar, por favor tente novamente.");
+                        continue;
+                    }
+                }
+                else if(etp == 7) //Etapa 7: Senha
+                {
+                    printf("\tInforme sua senha: ");
+                    if(scanf("%[A-ZÁÉÍÓÚÂÊÔÇÀÃÕ a-záéíóúâêôçàãõ.,@#$()0-9]", Alt_senha) != 1) {
+                        Msg("Senha inválida, por favor tente novamente.");
+                        continue;
+                    }
+
+                    if(AlterarUsuario(Usuario[id].nomeusuario, "senha", Alt_senha) == 1)
+                    {
+                        printf("\n\t\t [INFO] Senha alterada com sucesso!\n");
+                        Sleep(2000);
+                        etp = 0;
+                    }
+                    else {
+                        Msg("Ocorreu algum erro ao alterar, por favor tente novamente.");
+                        continue;
+                    }
+                }
+                else if(etp == 8 && Staff != 0) //Etapa 8: Nível de admin
+                {
+                    printf("\tInforme o nível de admin (0-1): ");
+                    if(scanf("%d", &Alt_admin) != 1) {
+                        Msg("Nível de admin inválido, por favor tente novamente.");
+                        continue;
+                    }
+
+                    sprintf(Alt_help, "%d", Alt_admin);
+                    if(AlterarUsuario(Usuario[id].nomeusuario, "admin", Alt_help) == 1)
+                    {
+                        printf("\n\t\t [INFO] Nível de admin alterado com sucesso!\n");
+                        Sleep(2000);
+                        etp = 0;
+                    }
+                    else {
+                        Msg("Ocorreu algum erro ao alterar, por favor tente novamente.");
+                        continue;
+                    }
+                }
+                else if(etp == 9 && Staff != 0) //Etapa 9: Dinheiro
+                {
+                    printf("\tInforme o valor do dinheiro (Exemplo: 600): ");
+                    if(scanf("%d", &Alt_dinheiro) != 1) {
+                        Msg("Dinheiro inválido, por favor tente novamente.");
+                        continue;
+                    }
+
+                    sprintf(Alt_help, "%d", Alt_dinheiro);
+                    if(AlterarUsuario(Usuario[id].nomeusuario, "dinheiro", Alt_help) == 1)
+                    {
+                        printf("\n\t\t [INFO] Dinheiro alterado com sucesso!\n");
+                        Sleep(2000);
+                        etp = 0;
+                    }
+                    else {
+                        Msg("Ocorreu algum erro ao alterar, por favor tente novamente.");
+                        continue;
+                    }
+
+                }
+                else //Erro
+                {
+                    Msg("Ocorreu algum erro ao alterar, tente novamente mais tarde.");
+                    etp = 0;
+                    continue;
+                }
+                Menu_id = 1;
+                break;
+            }
+        }
         break;
 
         case 4: //Excluir um usuario do sistema 
@@ -898,23 +1154,17 @@ void tUsuario(int ID)
             {
                 Header("///          = = = = = = = =  Excluir Usuário  = = = = = = = = =          ///");
 
-                printf("\n\tInforme o nome de usuário da pessoa: ");
-                scanf("%s", UsernameRemove);
-
-                for(i = 0; i < MAX_USERS; i++)
+                if(Staff != 0)
                 {
-                    if (strcmp(Usuario[i].nome, "InvalidUser") != 0) //Verificar se o usuário é válido
-                    {
-                        if (strcmp(Usuario[i].nomeusuario, UsernameRemove) == 0) //Verificar se o nome de usuário existe
-                        {
-                            uRemove = i;
-                            break;
-                        }
-                    }
+                    printf("\n\tInforme o nome de usuário da pessoa: ");
+                    scanf("%s", UsernameRemove);
+                    uRemove = Exists(USER, UsernameRemove, 1);
                 }
-
+                else {
+                    uRemove = Logado;
+                }
+                
                 i = 0;
-
                 if(uRemove != -1)
                 {
                     printf("\n\tNome: %s", Usuario[uRemove].nome);
@@ -930,6 +1180,7 @@ void tUsuario(int ID)
                         if(ExcluirUsuario(Usuario[uRemove].nomeusuario))
                         {
                             printf("\n\t\t\t\tUSUÁRIO REMOVIDO COM SUCESSO.\n");
+                            Logado = -1;
                         }
                         else
                         {
@@ -938,8 +1189,8 @@ void tUsuario(int ID)
                         }
                     }
 
-                    Menu_id = 1;
-                    printf("\n\t\tRetornando ao menu de usuário...\n");
+                    Menu_id = 0;
+                    printf("\n\t\tRetornando ao menu principal...\n");
                     Sleep(2000);
                     break;
                 }
@@ -1214,11 +1465,122 @@ void AlugarLivro(char usuario[32], int id_livro, int valorpago, int dia, int mes
     fclose(file); //Fechamento do arquivo
 }
 
-
-void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin)
+int AlterarUsuario(char username[32], char alternativa[128], char texto[256])
 {
+
+    int id = Exists(USER, username, 1); //Pegar ID da variável do struct pelo nome de usuário
+    int numerico, nasc[3];
+    char *tmpNumero[20];
+
+    if(id == -1)
+    {
+        return 0;
+    }
+
+    if (strcmp(alternativa, "nome") == 0)
+    {
+        RegistrarUsuario(texto, Usuario[id].celular, Usuario[id].cidade, Usuario[id].endereco, Usuario[id].nomeusuario, Usuario[id].senha, Usuario[id].nascimento.dia, Usuario[id].nascimento.mes, Usuario[id].nascimento.ano, Usuario[id].admin, Usuario[id].dinheiro);
+    }
+    else if (strcmp(alternativa, "celular") == 0)
+    {
+        RegistrarUsuario(Usuario[id].nome, texto, Usuario[id].cidade, Usuario[id].endereco, Usuario[id].nomeusuario, Usuario[id].senha, Usuario[id].nascimento.dia, Usuario[id].nascimento.mes, Usuario[id].nascimento.ano, Usuario[id].admin, Usuario[id].dinheiro);
+    }
+    else if (strcmp(alternativa, "cidade") == 0)
+    {
+        RegistrarUsuario(Usuario[id].nome, Usuario[id].celular, texto, Usuario[id].endereco, Usuario[id].nomeusuario, Usuario[id].senha, Usuario[id].nascimento.dia, Usuario[id].nascimento.mes, Usuario[id].nascimento.ano, Usuario[id].admin, Usuario[id].dinheiro);
+    }
+    else if (strcmp(alternativa, "endereco") == 0)
+    {
+        RegistrarUsuario(Usuario[id].nome, Usuario[id].celular, Usuario[id].cidade, texto, Usuario[id].nomeusuario, Usuario[id].senha, Usuario[id].nascimento.dia, Usuario[id].nascimento.mes, Usuario[id].nascimento.ano, Usuario[id].admin, Usuario[id].dinheiro);
+    }
+    else if (strcmp(alternativa, "nomeusuario") == 0)
+    {
+        RegistrarUsuario(Usuario[id].nome, Usuario[id].celular, Usuario[id].cidade, Usuario[id].endereco, texto, Usuario[id].senha, Usuario[id].nascimento.dia, Usuario[id].nascimento.mes, Usuario[id].nascimento.ano, Usuario[id].admin, Usuario[id].dinheiro);
+    }
+    else if (strcmp(alternativa, "senha") == 0)
+    {
+        RegistrarUsuario(Usuario[id].nome, Usuario[id].celular, Usuario[id].cidade, Usuario[id].endereco, Usuario[id].nomeusuario, texto, Usuario[id].nascimento.dia, Usuario[id].nascimento.mes, Usuario[id].nascimento.ano, Usuario[id].admin, Usuario[id].dinheiro);
+    }
+    else if (strcmp(alternativa, "nascimento") == 0)
+    {
+        char *dia, *mes, *ano;
+        dia = strtok(texto, "/");
+        mes = strtok(NULL, "/");
+        ano = strtok(NULL, "/");
+
+        nasc[0] = strtol(dia, tmpNumero, 10);
+        nasc[1] = strtol(mes, tmpNumero, 10);
+        nasc[2] = strtol(ano, tmpNumero, 10);
+        
+        RegistrarUsuario(Usuario[id].nome, Usuario[id].celular, Usuario[id].cidade, Usuario[id].endereco, Usuario[id].nomeusuario, Usuario[id].senha, nasc[0], nasc[1], nasc[2], Usuario[id].admin, Usuario[id].dinheiro);
+    }
+    else if (strcmp(alternativa, "admin") == 0)
+    {
+        numerico = strtol(texto, tmpNumero, 10);
+        RegistrarUsuario(Usuario[id].nome, Usuario[id].celular, Usuario[id].cidade, Usuario[id].endereco, Usuario[id].nomeusuario, Usuario[id].senha, Usuario[id].nascimento.dia, Usuario[id].nascimento.mes, Usuario[id].nascimento.ano, numerico, Usuario[id].dinheiro);
+    }
+    else if (strcmp(alternativa, "dinheiro") == 0)
+    {
+        numerico = strtol(texto, tmpNumero, 10);
+        RegistrarUsuario(Usuario[id].nome, Usuario[id].celular, Usuario[id].cidade, Usuario[id].endereco, Usuario[id].nomeusuario, Usuario[id].senha, Usuario[id].nascimento.dia, Usuario[id].nascimento.mes, Usuario[id].nascimento.ano, Usuario[id].admin, numerico);
+    }
+    else
+    {
+        return 0;
+    }
+    return 1;
+}
+
+
+void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uEndereco[128], char Username[32], char uSenha[128], int uDiaNasc, int uMesNasc, int uAnoNasc, int uAdmin, int uDinheiro)
+{
+    int existe = Exists(USER, Username, 1);
     char str[256];
-    int ID_User = GetFree(USER);
+    int ID_User, l;
+
+    if(existe != -1) //Se o usuário existir...
+    {
+        ID_User = existe;
+
+        existe = Exists(USER, Username, 0);
+
+        strcpy(Usuario[existe].nome, uNome);
+        strcpy(Usuario[existe].nomeusuario, Username);
+        strcpy(Usuario[existe].celular, uCel);
+        strcpy(Usuario[existe].cidade, uCidade);
+        strcpy(Usuario[existe].endereco, uEndereco);
+        strcpy(Usuario[existe].senha, uSenha);
+        Usuario[existe].nascimento.dia = uDiaNasc;
+        Usuario[existe].nascimento.mes = uMesNasc;
+        Usuario[existe].nascimento.ano = uAnoNasc;
+        Usuario[existe].admin = uAdmin;
+        Usuario[existe].dinheiro = uDinheiro;
+    }
+    else
+    {
+        ID_User = GetFree(USER);
+
+        for(l = 0; l < MAX_USERS; l++)
+        {
+            if (strcmp(Usuario[l].nome, "InvalidUser") == 0)
+            {
+                existe = l;
+                break;
+            }
+        }
+
+        strcpy(Usuario[existe].nome, uNome);
+        strcpy(Usuario[existe].nomeusuario, Username);
+        strcpy(Usuario[existe].celular, uCel);
+        strcpy(Usuario[existe].cidade, uCidade);
+        strcpy(Usuario[existe].endereco, uEndereco);
+        strcpy(Usuario[existe].senha, uSenha);
+        Usuario[existe].nascimento.dia = uDiaNasc;
+        Usuario[existe].nascimento.mes = uMesNasc;
+        Usuario[existe].nascimento.ano = uAnoNasc;
+        Usuario[existe].admin = uAdmin;
+        Usuario[existe].dinheiro = uDinheiro;
+    }
 
     FILE *file; //Criando variável para manipulação de arquivos
     sprintf(str, "Users\\User_%d.txt", ID_User);
@@ -1234,17 +1596,104 @@ void RegistrarUsuario(char uNome[128], char uCel[12], char uCidade[128], char uE
     fprintf(file, "%d\n", uMesNasc); //Mês de Nascimento
     fprintf(file, "%d\n", uAnoNasc); //Ano de Nascimento
     fprintf(file, "%d\n", uAdmin); //Ano de Nascimento
-    fprintf(file, "%d", DINHEIRO_PADRAO); //Dinheiro
+    fprintf(file, "%d", uDinheiro); //Dinheiro
     fclose(file); //Fechamento do arquivo
-    //printf("Usuário ID %d (%s): cadastrado com sucesso.\n", ID_User, uNome);
-    //Menu_id = 2;
-    //Sleep(2000);
+}
+
+
+/*
+
+//Pegar o id do arquivo do usuário, exemplo: User_3.txt, retornará 3
+Exists(USER, "nome de usuário", 1)
+
+//Pegar o id da variável da struct Usuario[ID], retornará o id pelo nome de usuário
+Exists(USER, "nome de usuário", 0)
+
+//Pegar o id do arquivo do livro, exemplo: Livro_3.txt, retornará 3
+Exists(BOOK, "id do livro, exemplo: 103", 1)
+
+//Pegar o id da variável da struct Livro[ID], retornará o id pelo id do livro, no caso de 103, retornará 3
+Exists(BOOK, "id do livro, exemplo: 103", 0)
+
+*/
+
+int Exists(int codigo, char info[50], int arquivo_variavel)
+{
+    char Susu[256], nome[35], tmpq[256], *token;
+    int i, x = 0, valor = -1, codigoespecifico, max_for;
+
+    if(codigo == USER)
+        max_for = MAX_USERS;
+    else
+        max_for = MAX_LIVROS; 
+
+    for(i = 0; i < max_for; i++)
+    {
+        if(arquivo_variavel == 1) //Arquivo
+        {
+            x = 0;
+
+            if(codigo == USER)
+            {
+                sprintf(nome, "Users\\User_%d.txt", i);
+                codigoespecifico = 4;
+            }
+            else
+            {
+                sprintf(nome, "Livros\\Livro_%d.txt", i);
+                codigoespecifico = 0;
+            } 
+            
+            if(AbrirArquivo(nome, Susu))
+            {
+                token = strtok(Susu, "\n");
+                while( token != NULL )
+                {
+                    sprintf(tmpq, "%s", token);
+
+                    if(x == codigoespecifico) //Linha 5 do arquivo (nome do usuário)
+                    {
+                        if (strcmp(tmpq, info) == 0) //Se o nome de usuário for o mesmo informado
+                        {
+                            valor = i;
+                            break;
+                        }
+                    }
+                    token = strtok(NULL, "\n");
+                    x++;
+                }
+            }
+        }
+        else //Variável
+        {
+            if(codigo == USER) //Pegar id variável do user
+            {
+                if (strcmp(Usuario[i].nome, "InvalidUser") != 0 && strcmp(Usuario[i].nomeusuario, info) == 0)
+                {
+                    valor = i;
+                }
+            }
+            else //Pegar id variável do livro
+            {
+                sprintf(nome, "%d", Livros[i].id);
+                if (strcmp(Livros[i].nome, "InvalidBook") != 0 && strcmp(nome, info) == 0)
+                {
+                    valor = i;
+                }
+            }
+
+            
+        }
+    }
+    return valor;
 }
 
 int ExcluirUsuario(char username[128])
 {
     char Susu[256], nome[25], tmpq[256], *token;
-    int i, x = 0, removed = 0;
+    int i, x = 0, removed = 0, id_var;
+
+    id_var = Exists(USER, username, 1);
 
     for(i = 0; i < MAX_USERS; i++)
     {
@@ -1277,18 +1726,21 @@ int ExcluirUsuario(char username[128])
             }
         }
     } //Fim do for
+
+    
+    if(removed == 1 && id_var != -1) //Se por acaso removeu
+    {
+        strcpy(Usuario[id_var].nome, "InvalidUser");
+        strcpy(Usuario[id_var].nomeusuario, "@DAjdaijidax#$$!!@@#$");
+    }
+
     return removed;
 }
 
 void CarregarUsuarios(void)
 {
-    char Susu[256], nome[25];
-
+    char Susu[256], nome[25], tmpq[256], *temp[10], *token;
     int i, x = 0;
-    char *token;
-
-    char tmpq[256];
-    char *temp[10];
 
     for(i = 0; i < MAX_USERS; i++)
     {
@@ -1456,10 +1908,10 @@ void Tela_Principal(void) {
     printf("///                             SIG-Library                                 ///\n");
     printf("///                                                                         ///\n");
     printf("///                                                 ///////////////////////////\n");
-    printf("///            [1] Módulo Usuario                   /// %s (%d anos) \n", Usuario[Logado].nome, idade);
-    printf("///            [2] Módulo Livros                    /// %d/%d/%d %d:%d [%s] \n", agora->tm_mday, agora->tm_mon+1, agora->tm_year+1900, agora->tm_hour, agora->tm_min, diasemana[agora->tm_wday]);
-    printf("///            [3] Módulo Sobre                     /// Dinheiro: R$ %d\n", Usuario[Logado].dinheiro);
-    printf("///            [4] Módulo Creditos                  ///////////////////////////\n");
+    printf("///            [1] Menu Usuário                     /// %s (%d anos) \n", Usuario[Logado].nome, idade);
+    printf("///            [2] Menu Livros                      /// %d/%d/%d %d:%d [%s] \n", agora->tm_mday, agora->tm_mon+1, agora->tm_year+1900, agora->tm_hour, agora->tm_min, diasemana[agora->tm_wday]);
+    printf("///            [3] Sobre                            /// Dinheiro: R$ %d\n", Usuario[Logado].dinheiro);
+    printf("///            [4] Créditos                         ///////////////////////////\n");
     printf("///            [0] Sair                                                     ///\n");
     printf("///                                                                         ///\n");
     printf("///////////////////////////////////////////////////////////////////////////////\n");
